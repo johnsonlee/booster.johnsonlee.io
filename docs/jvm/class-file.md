@@ -34,7 +34,7 @@
 
 如何让第 2 种情况也能正常运行呢？—— 在用 *Java 8* 编译时指定 *-target 1.7* 或者更低即可，在 *Gradle* 中则是：
 
-```gradle
+```groovy
 java {
     targetCompatibility = JavaVersion.VERSION_1_7
 }

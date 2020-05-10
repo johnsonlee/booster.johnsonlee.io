@@ -23,7 +23,7 @@
 开启 *WebP* 压缩只需要引入 [booster-task-compression-cwebp](https://github.com/didi/booster/blob/master/booster-task-compression-cwebp) 即可，如下所示：
 
 
-```gradle:build.gradle
+```groovy
 buildscript {
     ext {
         kotlin_version = '1.3.31'
@@ -62,7 +62,7 @@ $ ./gradlew compressDebugResourcesWithCwebp --info
 
 同时启用 *PNG* 和 *WebP* 压缩只需要引入 [booster-task-compression-cwebp](https://github.com/didi/booster/tree/master/booster-task-compression-cwebp)，[booster-task-compression-pngquant](https://github.com/didi/booster/tree/master/booster-task-compression-pngquant) 和 [booster-pngquant-provider](https://github.com/johnsonlee/booster-pngquant-provider) 即可：
 
-```gradle:build.gradle
+```groovy
 buildscript {
     ext {
         kotlin_version = '1.3.31'
@@ -99,7 +99,7 @@ buildscript {
 
 ## 通过 *gradle.properties* 配置
 
-```properties:gradle.properties
+```properties
 booster.task.compression.cwebp.option.quality=75
 ```
 
@@ -119,7 +119,7 @@ build/reports/booster-task-compression-cwebp/${variant}/report.txt
 
 其内容如下所示：
 
-```text:report.txt
+```
 88.03% intermediates/res/merged/debug/drawable-xxhdpi_bg_banner2.png.flat       157,448 178,864 ...
 88.03% intermediates/res/merged/debug/drawable-xxhdpi_bg_banner1.png.flat       157,448 178,864 ...
 53.41% intermediates/res/merged/debug/drawable-xxxhdpi_bg_card.png.flat          49,315  92,325 ...

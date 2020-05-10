@@ -6,7 +6,5 @@ export default({
   isServer
 }) =>  {
   router.addRoutes([
-    { path: '/', redirect: '/zh/' },
-    { path: '/en/', redirect: '/zh/' }
   ]);
 }

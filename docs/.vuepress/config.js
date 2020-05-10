@@ -1,13 +1,15 @@
 module.exports = ctx => ({
   base: '/',
   dest: './dist',
+  title: '深入理解 Booster',
+  description: '全面剖析 Booster 的设计思路与实现原理',
   locales: {
-    '/en/': {
-      lang: 'en-US',
-      title: 'Booster Inside',
-      description: 'Comprehensive explaination of Booster\'s design ideas and realization principles',
-    },
-    '/zh/': {
+    //'/en/': {
+    //  lang: 'en-US',
+    //  title: 'Booster Inside',
+    //  description: 'Comprehensive explaination of Booster\'s design ideas and realization principles',
+    //},
+    '/': {
       lang: 'zh-CN',
       title: '深入理解 Booster',
       description: '全面剖析 Booster 的设计思路与实现原理',
@@ -28,13 +30,13 @@ module.exports = ctx => ({
     repo: 'didi/booster',
     smoothScroll: true,
     locales: {
-      '/zh/': {
+      '/': {
         label: '简体中文',
         selectText: '选择语言',
         ariaLabel: '选择语言',
         nav: require('./nav/zh'),
         sidebar: {
-          '/zh/preface/': [
+          '/preface/': [
             {
               title: '前言',
               collapsable: false,
@@ -45,7 +47,7 @@ module.exports = ctx => ({
               ]
             },
           ],
-          '/zh/feature/': [
+          '/feature/': [
             {
               title: '性能优化',
               collapsable: false,
@@ -88,7 +90,7 @@ module.exports = ctx => ({
               ],
             },
           ],
-          '/zh/developer/': [
+          '/developer/': [
             {
               title: 'Booster 插件开发',
               collapsable: false,
@@ -103,7 +105,7 @@ module.exports = ctx => ({
               ],
             },
           ],
-          '/zh/architecture/': [
+          '/architecture/': [
             {
               title: 'Booster 架构剖析',
               collapsable: false,
