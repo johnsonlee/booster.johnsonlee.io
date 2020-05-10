@@ -1,0 +1,23 @@
+{
+  "name": "booster-inside",
+  "version": "2.0.0",
+  "description": "Booster Inside",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx vuepress dev docs",
+    "docs:build": "npx vuepress build docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/johnsonlee/booster-inside.git"
+  },
+  "author": "johnsonlee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/johnsonlee/booster-inside/issues"
+  },
+  "homepage": "https://github.com/johnsonlee/booster-inside",
+  "dependencies": {
+    "vuepress": "^1.4.1"
+  }
+}
