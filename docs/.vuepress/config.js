@@ -36,89 +36,83 @@ module.exports = ctx => ({
         ariaLabel: '选择语言',
         nav: require('./nav/zh'),
         sidebar: {
-          '/preface/': [
+          '/': [
             {
               title: '前言',
               collapsable: false,
               children: [
-                '',
-                'overview',
-                'getting-started',
+                'preface/',
+                'preface/overview',
+                'preface/getting-started',
               ]
             },
-          ],
-          '/feature/': [
             {
               title: '性能优化',
               collapsable: false,
               children: [
-                'performance/static-analysis',
-                'performance/multithreading-optimization',
-                'performance/shared-preferences-optimization',
-                'performance/webview-preloading',
+                'feature/performance/static-analysis',
+                'feature/performance/multithreading-optimization',
+                'feature/performance/shared-preferences-optimization',
+                'feature/performance/webview-preloading',
               ],
             },
             {
               title: '包体积瘦身',
               collapsable: false,
               children: [
-                'shrink/png-compression',
-                'shrink/webp-compression',
-                'shrink/zip-compression',
-                'shrink/res-index-inline',
-                'shrink/res-deredundancy',
+                'feature/shrink/png-compression',
+                'feature/shrink/webp-compression',
+                'feature/shrink/zip-compression',
+                'feature/shrink/res-index-inline',
+                'feature/shrink/res-deredundancy',
               ],
             },
             {
               title: '系统 bug 修复',
               collapsable: false,
               children: [
-                'bugfix/prevent-crash-from-system-bug',
-                'bugfix/finalizer-timeout-exception',
-                'bugfix/null-resource-assets',
-                'bugfix/toast-crash-on-android-25',
+                'feature/bugfix/prevent-crash-from-system-bug',
+                'feature/bugfix/finalizer-timeout-exception',
+                'feature/bugfix/null-resource-assets',
+                'feature/bugfix/toast-crash-on-android-25',
               ],
             },
             {
               title: '其它',
               collapsable: false,
               children: [
-                'misc/dependencies-check-on-release-build',
-                'misc/android-permission-list',
-                'misc/shared-library-list',
-                'misc/build-artifact-list',
+                'feature/misc/dependencies-check-on-release-build',
+                'feature/misc/android-permission-list',
+                'feature/misc/shared-library-list',
+                'feature/misc/build-artifact-list',
               ],
             },
-          ],
-          '/developer/': [
             {
               title: 'Booster 插件开发',
               collapsable: false,
               children: [
-                'javassist-or-asm',
-                'first-class-transformer',
-                'first-variant-processor',
-                'class-transformer-plus-variant-processor',
-                'using-transformer-in-task',
-                'standalone-transformer',
-                'debug-gradle-plugin',
+                'developer/javassist-or-asm',
+                'developer/first-class-transformer',
+                'developer/first-variant-processor',
+                'developer/class-transformer-plus-variant-processor',
+                'developer/using-transformer-in-task',
+                'developer/standalone-transformer',
+                'developer/debug-gradle-plugin',
               ],
             },
-          ],
-          '/architecture/': [
             {
               title: 'Booster 架构剖析',
               collapsable: false,
               children: [
-                'overview',
-                'dynamic-discovery-and-dependency-injection',
-                'transformer-pipeline',
-                'high-performance-io',
-                'aapt2-output-reversing',
-                'incremental-build-and-build-cache',
+                'architecture/overview',
+                'architecture/dynamic-discovery-and-dependency-injection',
+                'architecture/transformer-pipeline',
+                'architecture/high-performance-io',
+                'architecture/aapt2-output-reversing',
+                'architecture/incremental-build-and-build-cache',
               ],
             },
-          ],
+          ]
         }
       }
     }
