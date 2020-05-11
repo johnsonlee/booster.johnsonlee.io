@@ -78,7 +78,7 @@ module.exports = ctx => ({
               ],
             },
             {
-              title: '其它',
+              title: '其它特性',
               collapsable: false,
               children: [
                 'feature/misc/dependencies-check-on-release-build',
