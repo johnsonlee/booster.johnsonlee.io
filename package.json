@@ -19,5 +19,8 @@
   "homepage": "https://github.com/johnsonlee/booster-inside",
   "dependencies": {
     "vuepress": "^1.4.1"
+  },
+  "devDependencies": {
+    "@vuepress/plugin-google-analytics": "^1.4.1"
   }
 }
