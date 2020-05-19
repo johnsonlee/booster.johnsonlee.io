@@ -20,7 +20,7 @@
 
 ## Benchmark
 
-*Booster* 最初在选择字节码操作框架的时候，最主要的考量因素是性能，*Booster* 作为质量优化框架，不仅自身模块在性能上要求做到极致，也要让其他开发者基于 *Booster* 开发的功能在性能上也要表现卓越，所以，针对 *Javassist* 的 *ASM* 在字节码处理方面的性能作了 *benchmark* 测试，以下是通过处理 *guava-28.2-jre.jar* 来对比二者之前的性能：
+*Booster* 最初在选择字节码操作框架的时候，最主要的考量因素是性能，*Booster* 作为质量优化框架，不仅自身模块在性能上要求做到极致，也要让其他开发者基于 *Booster* 开发的功能在性能上也要表现卓越，所以，针对 *Javassist* 和 *ASM* 在字节码处理方面的性能作了 *benchmark* 测试，以下是通过处理 *guava-28.2-jre.jar* 来对比二者之间的性能：
 
 ```kotlin
 @BenchmarkMode(Mode.AverageTime)
