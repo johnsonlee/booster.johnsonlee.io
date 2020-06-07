@@ -239,7 +239,7 @@ public static void kill() {
 buildscript {
     ext {
         kotlin_version = '1.3.31'
-        booster_version = '1.6.0'
+        booster_version = '1.7.1'
     }
     repositories {
         mavenLocal()

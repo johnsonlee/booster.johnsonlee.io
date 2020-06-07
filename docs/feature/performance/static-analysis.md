@@ -121,7 +121,7 @@ Android 本身提供了 [Thread Annotations](https://developer.android.com/studi
 ```groovy
 buildscript {
 
-    ext.booster_version = '1.6.0'
+    ext.booster_version = '1.7.1'
 
     dependencies {
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"

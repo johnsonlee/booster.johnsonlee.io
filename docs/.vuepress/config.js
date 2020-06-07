@@ -91,7 +91,8 @@ module.exports = ctx => ({
               title: 'Booster 插件开发',
               collapsable: false,
               children: [
-                'developer/javassist-or-asm',
+                'developer/bytecode-transformer',
+                'developer/bytecode-engineering-framework',
                 'developer/first-class-transformer',
                 'developer/first-variant-processor',
                 'developer/class-transformer-plus-variant-processor',

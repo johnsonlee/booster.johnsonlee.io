@@ -1,6 +1,6 @@
-# Javassist 还是 ASM
+# 选择字节码操作框架
 
-## 字节码操作框架
+## ASM vs Javassist
 
 很多开发者在选择字节码操作框架之初，都会有所疑惑，到底是选择 *Javassist* 呢？还是 *ASM* 呢？我们可能从以下几个方面来对比一下两者之间的差异，以及适用范围：
 
@@ -18,7 +18,7 @@
 
 所以，为了照顾到尽可能多的开发者，*Booster* 对两者都做了支持，看过 *Booster* 的源码的同学可能会问，为什么 *Booster* 的大部分实现都是基于 *ASM* 呢？究竟有哪些考量？
 
-## Benchmark
+## ASM & Javassist 性能测试
 
 *Booster* 最初在选择字节码操作框架的时候，最主要的考量因素是性能，*Booster* 作为质量优化框架，不仅自身模块在性能上要求做到极致，也要让其他开发者基于 *Booster* 开发的功能在性能上也要表现卓越，所以，针对 *Javassist* 和 *ASM* 在字节码处理方面的性能作了 *benchmark* 测试，以下是通过处理 *guava-28.2-jre.jar* 来对比二者之间的性能：
 
@@ -70,4 +70,8 @@ open class JavassistVsAsmBenchmark {
 |JavassistVsAsmBenchmark.transformJarUsingAsm       | avgt |  10 | 203.489 | ± 52.174 | ms/op |
 |JavassistVsAsmBenchmark.transformJarUsingJavassist | avgt |  10 | 277.695 | ± 10.801 | ms/op |
 
-从上面的结果来看，*ASM* 平均耗时更低。
+从上面的结果来看，*ASM* 平均耗时更低
+
+## 其它选择
+
+除了 *ASM* 和 *Javassist* 以外，*Booster* 同样支持使用其它的字节码框架，比如：[Apache BCEL](https://commons.apache.org/bcel/)，只不过，*ASM* 和 *Javassist* 是 *Booster* 默认提供了支持，如果要在项目中使用 [Apache BCEL](https://commons.apache.org/bcel/) 该如何实现呢？—— 请参阅下一节[「自定义 Transformer」](./custom-transformer/)。

@@ -6,7 +6,7 @@
 
 ```groovy
 buildscript {
-    ext.booster_version = '1.6.0'
+    ext.booster_version = '1.7.1'
 
     repositories {
         google()
@@ -27,7 +27,7 @@ buildscript {
 
 ```groovy
 buildscript {
-    ext.booster_version = '1.6.0'
+    ext.booster_version = '1.7.1'
 
     repositories {
         google()
@@ -65,7 +65,7 @@ apply plugin: 'com.didiglobal.booster'
 
 ```groovy
 buildscript {
-    ext.booster_version = '1.6.0'
+    ext.booster_version = '1.7.1'
     ext.debug = gradle.startParameter.taskNames.any { it.contains('debug') || it.contains('Debug') }
 
     repositories {
