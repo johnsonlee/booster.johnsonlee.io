@@ -227,7 +227,7 @@ public class ShadowToast {
 buildscript {
     ext {
         kotlin_version = '1.3.31'
-        booster_version = '1.7.1'
+        booster_version = '1.7.2'
     }
     repositories {
         mavenLocal()
