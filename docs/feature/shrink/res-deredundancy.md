@@ -113,3 +113,12 @@ buildscript {
     }
 }
 ```
+
+::: warning
+*Android Gradle Plugin 3.6* 及以上版本，需要在 *gradle.properties* 中设置：
+
+```properties
+android.precompileDependenciesResources=false
+```
+:::
+

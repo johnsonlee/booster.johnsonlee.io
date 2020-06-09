@@ -66,6 +66,14 @@ buildscript {
 $ ./gradlew compressDebugResourcesWithPngquant --info
 ```
 
+::: warning
+*Android Gradle Plugin 3.6* 及以上版本，需要在 *gradle.properties* 中设置：
+
+```properties
+android.precompileDependenciesResources=false
+```
+:::
+
 ## 自定义压缩质量
 
 [booster-task-compression-pngquant](https://github.com/didi/booster/tree/master/booster-task-compression-pngquant) 支持自定义的参数如下表所示：
