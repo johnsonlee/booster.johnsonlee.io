@@ -4,14 +4,41 @@
 
 ## java.lang.NoSuchMethodError: kotlin.io.ByteStreamKt.readBytes(Ljava/io/InputStream;)[B
 
+::: tip
 升级 *Kotlin* 版本至 `1.3.10` 或更高
 
 ```groovy
 classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
 ```
+:::
+
+## java.lang.NoSuchFieldError: JAVA_LETTER_OR_DIGIT
+
+::: tip
+*Android Gradle Plugin* 依赖的 *Guava* 版本低于 `26.0` 而其它库依赖了 *Guava* `26.0` 以上的版本
+
+`CharMatcher.JAVA_LETTER_OR_DIGIT` 在 *Guava* `26.0` 版本中被移除
+
+- 升级 *Android Gradle Plugin* 版本
+
+    ```groovy
+    classpath 'com.android.tools.build:gradle:3.3.0'
+    ```
+:::
+
+## IllegalAccessError: tried to access method com.google.common.io.Files.fileTreeTraverser()
+
+::: tip
+*Android Gradle Plugin* 依赖的 *Guava* 版本低于 `25.0`
+
+`com.google.common.io.Files.fileTreeTraverser()` 在 *Guava*  `25.0` 版本中被移除
+
+检查项目中引用的 *Guava* 版本是否正确，确保构建脚本依赖的是 *Guava* 的 *JRE* 版本
+:::
 
 ## java.lang.NoSuchFieldError: ASCII
 
+::: tip
 - 升级 *Android Gradle Plugin* 版本
 
     ```groovy
@@ -29,3 +56,4 @@ classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
     ```groovy
     classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
     ```
+:::
