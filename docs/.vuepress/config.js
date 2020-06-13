@@ -96,7 +96,7 @@ module.exports = ctx => ({
                 'developer/first-class-transformer',
                 'developer/first-variant-processor',
                 'developer/class-transformer-plus-variant-processor',
-                'developer/using-transformer-in-task',
+                'developer/using-class-transformer-in-task',
                 'developer/standalone-transformer',
                 'developer/debug-gradle-plugin',
               ],

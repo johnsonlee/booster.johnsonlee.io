@@ -74,4 +74,4 @@ open class JavassistVsAsmBenchmark {
 
 ## 其它选择
 
-除了 *ASM* 和 *Javassist* 以外，*Booster* 同样支持使用其它的字节码框架，比如：[Apache BCEL](https://commons.apache.org/bcel/)，只不过，*ASM* 和 *Javassist* 是 *Booster* 默认提供了支持，如果要在项目中使用 [Apache BCEL](https://commons.apache.org/bcel/) 该如何实现呢？—— 请参阅下一节[「自定义 Transformer」](./custom-transformer/)。
+除了 *ASM* 和 *Javassist* 以外，*Booster* 同样支持使用其它的字节码框架，比如：[Apache Commons BCEL](https://commons.apache.org/bcel/)，只不过，*ASM* 和 *Javassist* 是 *Booster* 默认提供了支持，如果要在项目中使用 [Apache Commons BCEL](https://commons.apache.org/bcel/) —— 请参阅[字节码操作 - 自定义 Transformer](./bytecode-transformer.html#自定义-transformer)。

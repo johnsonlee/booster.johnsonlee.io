@@ -82,7 +82,11 @@ import com.didiglobal.booster.task.spi.VariantProcessor
 import com.google.auto.service.AutoService
 
 @AutoService(VariantProcessor::class)
-class SimpleVariantProcessor : VariantProcessor {
+class SimpleVariantProcessor(val project: Project) : VariantProcessor {
+
+    init {
+        println("${project.name}")
+    }
 
     override fun process(variant: BaseVariant) {
         println("${variant.project.name}: ${variant.name}")
@@ -90,6 +94,10 @@ class SimpleVariantProcessor : VariantProcessor {
 
 }
 ```
+
+::: tip
+`VariantProcessor` 构造方法中的 `Project` 参数是可选的
+:::
 
 ## 验证 *FirstVariantProcessor*
 

@@ -9,25 +9,43 @@
 
 ## 自定义 Transformer
 
-除了 [AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt) 和 [JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt) 外，*Booster* 允许开发者实现自己的 [Transformer](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Transformer.kt)，代码如下所示：
+除了 [AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt) 和 [JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt) 外，*Booster* 允许开发者实现自己的 [Transformer](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Transformer.kt)，以 [Apache Commons BCEL](http://commons.apache.org/proper/commons-bcel/) 为例：
 
 ```kotlin
-@AutoService(Transformer::class)
-class CustomTransformer(val classLoader: ClassLoader) : Transformer {
+interface ClassTransformer : TransformerListener {
 
-    override fun onPreTransform(context: TransformContext) {
+    fun transform(context: TransformContext, klass: JavaClass) = klass
+
+}
+
+@AutoService(Transformer::class)
+class BcelTransformer(val classLoader: ClassLoader) : Transformer {
+
+    private val transformers = ServiceLoader.load(ClassTransformer::class.java, classLoader).sortedBy {
+        it.javaClass.getAnnotation(Priority::class.java)?.value ?: 0
     }
 
-    override fun transform(context: TransformContext, bytecode: ByteArray): ByteArray {
-        TODO("Transform bytecode by CustomTransformer")
+    override fun onPreTransform(context: TransformContext) {
+        this.transformers.forEach { transformer ->
+            transformer.onPreTransform(context)
+        }
     }
 
     override fun onPostTransform(context: TransformContext) {
+        this.transformers.forEach { transformer ->
+            transformer.onPostTransform(context)
+        }
+    }
+
+    override fun transform(context: TransformContext, bytecode: ByteArray): ByteArray {
+        return ClassParser(bytecode.inputStream(), "").parse().run { klass ->
+            TODO("Transform JavaClass with BCEL")
+        }.getBytes()
     }
 
 }
 ```
 
 ::: tip
-需要注意的是，带 `ClassLoader` 参数的构造方法不是必须的，但会影响在 *CustomTransformer* 中通过 `ServiceLoader` 加载自定义的 *SPI*。
+需要注意的是，带 `ClassLoader` 参数的构造方法不是必须的，但会影响在 *BcelTransformer* 中通过 `ServiceLoader` 加载自定义的 *ClassTransformer*。
 :::

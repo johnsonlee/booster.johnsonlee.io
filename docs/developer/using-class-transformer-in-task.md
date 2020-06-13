@@ -1,4 +1,4 @@
-# 在 *Task* 中使用 *Transformer*
+# 在 *Task* 中使用 *ClassTransformer*
 
 在平常的开发过程中，我们可能需要在 *Task* 中依赖 *Android Transform Pipeline* 的产出物，例如：[booster-task-analyser](https://github.com/didi/booster/blob/master/booster-task-analyser) 就是在 [AnalyserTask](https://github.com/didi/booster/blob/master/booster-task-analyser/src/main/kotlin/com/didiglobal/booster/task/analyser/AnalyserTask.kt) 中对 *Android Transform Pipeline* 的产出物进行静态分析，针对这种应用场景，*Booster* 提供了一系列实用类和扩展方法：
 
