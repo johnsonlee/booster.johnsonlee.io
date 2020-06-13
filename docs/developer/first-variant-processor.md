@@ -9,7 +9,7 @@ buildscript {
     ext {
         agp_version = '3.5.0'
         kotlin_version = '1.3.31'
-        booster_version = '1.7.2'
+        booster_version = '2.0.0'
     }
     repositories {
         mavenLocal()
