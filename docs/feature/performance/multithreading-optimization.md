@@ -26,7 +26,7 @@
 
 ## 无侵入的线程优化
 
-[booster-transform-thread](https://github.com/didi/booster/tree/master/booster-transform-thread) 提供了一种全新的思路——将所有创建线程的指令在编译期间替换成自定义的方法调用，经过大量的分析和验证后发现，*Android* 创建线程的主要是通过以下几种方式：
+[booster-transform-thread](https://github.com/didi/booster/tree/master/booster-transform-thread) 提供了一种全新的思路——将所有创建线程的指令在编译期间替换成自定义的方法调用，经过大量的分析和验证后发现，*Android* 创建线程主要是通过以下几种方式：
 
 - `Thread` 及其子类
 - `TheadPoolExecutor` 及其子类、`Executors`、`ThreadFactory` 实现类

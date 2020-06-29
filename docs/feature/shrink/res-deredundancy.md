@@ -93,7 +93,7 @@ android {
 buildscript {
     ext {
         kotlin_version = '1.3.31'
-        booster_version = '2.0.0'
+        booster_version = '2.2.0'
     }
     repositories {
         mavenLocal()
