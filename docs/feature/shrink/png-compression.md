@@ -55,7 +55,7 @@ buildscript {
 
         /* 👇👇👇👇 引用这两个模块 👇👇👇👇 */
         classpath "com.didiglobal.booster:booster-task-compression-pngquant:$booster_version"
-        classpath "io.johnsonlee.booster:booster-pngquant-provider:1.6.0"
+        classpath "io.johnsonlee.booster:booster-pngquant-provider:2.3.0"
     }
 }
 ```
