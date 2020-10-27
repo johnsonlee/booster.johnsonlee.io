@@ -2,7 +2,7 @@
 
 在使用 *Booster* 的过程中，可能会遇到一些问题，以下列举了一些常见问题及解决办法。
 
-## java.lang.NoSuchMethodError: kotlin.io.ByteStreamKt.readBytes(Ljava/io/InputStream;)[B
+## NoSuchMethodError: kotlin.io.ByteStreamKt.readBytes(Ljava/io/InputStream;)[B
 
 ::: tip
 升级 *Kotlin* 版本至 `1.3.10` 或更高
@@ -12,7 +12,7 @@ classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
 ```
 :::
 
-## java.lang.NoSuchFieldError: JAVA_LETTER_OR_DIGIT
+## NoSuchFieldError: JAVA_LETTER_OR_DIGIT
 
 ::: tip
 *Android Gradle Plugin* 依赖的 *Guava* 版本低于 `26.0` 而其它库依赖了 *Guava* `26.0` 以上的版本
@@ -36,7 +36,7 @@ classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
 检查项目中引用的 *Guava* 版本是否正确，确保构建脚本依赖的是 *Guava* 的 *JRE* 版本
 :::
 
-## java.lang.NoSuchFieldError: ASCII
+## NoSuchFieldError: ASCII
 
 ::: tip
 - 升级 *Android Gradle Plugin* 版本
@@ -56,4 +56,26 @@ classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
     ```groovy
     classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
     ```
+:::
+
+## 如何检查引用的 *Guava* 版本
+
+::: tip
+执行 *buildEnv* 任务查看工程 *build* 脚本的依赖：
+
+```bash
+$ ./gradlew buildEnv
+```
+:::
+
+## 移除 Booster 依赖的 Guava 版本
+
+如果以上所有方法都想升级 *Android Gradle Plugin* 版本，考虑将 *Guava* 从 *Booster* 的依赖中排除：
+
+::: tip
+```gradle
+classpath("com.didiglobal.booster:booster-gradle-plugin:${booster_version}") {
+    exclude group: 'com.google.guava'
+}
+```
 :::
