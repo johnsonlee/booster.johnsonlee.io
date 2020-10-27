@@ -14,39 +14,37 @@
 
 1. *ConstraintLayout* 中引用的字段，例如：
 
-  ```xml
-  <android.support.constraint.Group
-      android:id="@+id/group"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:visibility="visible"
-      app:constraint_referenced_ids="button4,button9" />
-  ```
+    ```xml
+    <android.support.constraint.Group
+        android:id="@+id/group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:constraint_referenced_ids="button4,button9" />
+    ```
 
-  其中，`R.id.button4` 和 `R.id.button9` 是必须要保留的，因为 *ContraintLayout* 会调用 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 来获取 `button4` 和 `button9` 的 *id* 索引。
+    其中，`R.id.button4` 和 `R.id.button9` 是必须要保留的，因为 *ContraintLayout* 会调用 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 来获取 `button4` 和 `button9` 的 *id* 索引。
 
-  总结下来，在 *ConstraintLayout* 中引用其它 *id* 的属性如下：
-
-  - `constraint_referenced_ids`
-  - `layout_constraintLeft_toLeftOf`
-  - `layout_constraintLeft_toRightOf`
-  - `layout_constraintRight_toLeftOf`
-  - `layout_constraintRight_toRightOf`
-  - `layout_constraintTop_toTopOf`
-  - `layout_constraintTop_toBottomOf`
-  - `layout_constraintBottom_toTopOf`
-  - `layout_constraintBottom_toBottomOf`
-  - `layout_constraintBaseline_toBaselineOf`
-  - `layout_constraintStart_toEndOf`
-  - `layout_constraintStart_toStartOf`
-  - `layout_constraintEnd_toStartOf`
-  - `layout_constraintEnd_toEndOf`
-
-  因此，*Booster* 采用了解析 *xml* 的方式，从 *xml* 中提取以上属性。
+    总结下来，在 *ConstraintLayout* 中引用其它 *id* 的属性如下：
+    - `constraint_referenced_ids`
+    - `layout_constraintLeft_toLeftOf`
+    - `layout_constraintLeft_toRightOf`
+    - `layout_constraintRight_toLeftOf`
+    - `layout_constraintRight_toRightOf`
+    - `layout_constraintTop_toTopOf`
+    - `layout_constraintTop_toBottomOf`
+    - `layout_constraintBottom_toTopOf`
+    - `layout_constraintBottom_toBottomOf`
+    - `layout_constraintBaseline_toBaselineOf`
+    - `layout_constraintStart_toEndOf`
+    - `layout_constraintStart_toStartOf`
+    - `layout_constraintEnd_toStartOf`
+    - `layout_constraintEnd_toEndOf`
+    因此，*Booster* 采用了解析 *xml* 的方式，从 *xml* 中提取以上属性。
 
 1. 其它通过 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 或 <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a> 来获取索引值的资源
 
-  针对这种情况，需要对字节码进行全盘扫描才能确定哪些地方调用了 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 或 <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a>，考虑到增加一次 *Transform* 带来的性能损耗，*Booster* 提供了通过配置白名单的方式来保留这些资源索引。
+    针对这种情况，需要对字节码进行全盘扫描才能确定哪些地方调用了 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 或 <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a>，考虑到增加一次 *Transform* 带来的性能损耗，*Booster* 提供了通过配置白名单的方式来保留这些资源索引。
 
 ## 删除不必要的 *Field*
 
