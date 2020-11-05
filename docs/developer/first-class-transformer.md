@@ -117,8 +117,9 @@ buildSrc/
 ```groovy
 buildscript {
     ext {
-        kotlin_version = '1.3.31'
+        agp_version = '4.0.0'
         booster_version = '2.4.0'
+        kotlin_version = '1.3.31'
     }
     repositories {
         mavenLocal()
@@ -173,6 +174,7 @@ compileTestKotlin {
 }
 
 dependencies {
+    api "com.android.tools.build:gradle:$agp_version"
     /* 👇👇👇👇 引用这两个模块 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0-rc6"
     api "com.didiglobal.booster:booster-api:$booster_version"
@@ -185,6 +187,7 @@ dependencies {
 
 ```groovy
 dependencies {
+    api "com.android.tools.build:gradle:$agp_version"
     /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0-rc6"
     api "com.didiglobal.booster:booster-api:$booster_version"
@@ -217,6 +220,7 @@ class FirstClassTransformer : ClassTransformer {
 
 ```groovy
 dependencies {
+    api "com.android.tools.build:gradle:$agp_version"
     /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0-rc6"
     api "com.didiglobal.booster:booster-api:$booster_version"
@@ -250,8 +254,9 @@ class FirstClassTransformer : ClassTransformer {
 ```groovy
 buildscript {
     ext {
-        kotlin_version = '1.3.31'
+        agp_version = '4.0.0'
         booster_version = '2.4.0'
+        kotlin_version = '1.3.31'
     }
     repositories {
         mavenLocal()
@@ -262,7 +267,7 @@ buildscript {
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath "com.android.tools.build:gradle:$agp_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         /* 👇👇👇👇 引用 Booster Gradle 插件 👇👇👇👇 */
