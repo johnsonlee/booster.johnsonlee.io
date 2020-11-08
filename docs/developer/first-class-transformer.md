@@ -118,7 +118,7 @@ buildSrc/
 buildscript {
     ext {
         agp_version = '4.0.0'
-        booster_version = '2.4.0'
+        booster_version = '3.0.0'
         kotlin_version = '1.3.31'
     }
     repositories {
@@ -255,7 +255,7 @@ class FirstClassTransformer : ClassTransformer {
 buildscript {
     ext {
         agp_version = '4.0.0'
-        booster_version = '2.4.0'
+        booster_version = '3.0.0'
         kotlin_version = '1.3.31'
     }
     repositories {
