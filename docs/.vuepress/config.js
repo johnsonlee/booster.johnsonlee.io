@@ -44,6 +44,7 @@ module.exports = ctx => ({
                 'preface/',
                 'preface/overview',
                 'preface/getting-started',
+                'preface/getting-started-advanced',
               ]
             },
             {
