@@ -4,7 +4,26 @@
 
 在写第一个 *ClassTransformer* 之前，需要有一个 *Java* 或 *Kotlin* 工程，这里有两种工程形式。
 
+### buildSrc 工程
+
+如果已经有一个 *Android* 工程了，可以直接在工程根目录新建一个 *buildSrc* 目录，*Gradle* 会把 *buildSrc* 当作构建工程，对它进行编译和测试，然后将其加入 *buildscript* 的 *classpath* 中，对于有多个子程的项目来说，只能有一个 *buildSrc* 目录位于工程根目录，对于复杂的构建来说，优先选择通过 *buildSrc* 来组织构建脚本。
+
+然后在 *buildSrc* 目录下，创建如下目录结构：
+
+```
+buildSrc/
+├── build.gradle
+└── src
+    └── main
+        ├── java
+        └── kotlin
+```
+
+> 对于 *Android* 开发者来说，推荐用 *buildSrc* 的方式，这样在一个工程中，上手更容易。
+
 ### 独立的 Java 工程
+
+如果需要将 *ClassTransformer* 共享给多个 *Android* 工程，采用独立的 *Java* 工程会更合适。
 
 我们可以通过 *gradle* 命令，来创建一个 *Java* 工程：
 
@@ -92,23 +111,6 @@ Source package (default: BoosterDemo): io.johnsonlee.booster.demo
         │               └── LibraryTest.kt
         └── resources
 ```
-
-### buildSrc 工程
-
-如果已经有一个 *Android* 工程了，可能直接在工程根目录新建一个 *buildSrc* 目录，*Gradle* 会把 *buildSrc* 当作构建工程，对它进行编译和测试，然后将其加入 *buildscript* 的 *classpath* 中，对于有多个子程的项目来说，只能有一个 *buildSrc* 目录位于工程根目录，对于复杂的构建来说，优先选择通过 *buildSrc* 来组织构建脚本。
-
-然后在 *buildSrc* 目录下，创建如下目录结构：
-
-```
-buildSrc/
-├── build.gradle
-└── src
-    └── main
-        ├── java
-        └── kotlin
-```
-
-> 对于 *Android* 开发者来说，推荐用 *buildSrc* 的方式，这样在一个工程中，上手更容易。
 
 ## 引入 *Booster*
 
