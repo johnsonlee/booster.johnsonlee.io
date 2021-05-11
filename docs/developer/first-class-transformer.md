@@ -112,6 +112,14 @@ Source package (default: BoosterDemo): io.johnsonlee.booster.demo
         └── resources
 ```
 
+::: tip
+如果采用独立的 *Java Library* 工程需要将 *Java Library* 工程发布到 Maven 仓库才能集成到 Android 工程中，例如：发布到本地 Maven 仓库：
+
+```bash
+./gradlew publishToMavenLocal
+```
+:::
+
 ## 引入 *Booster*
 
 准备好工程后，接下来在 *Java Library* 工程或者 *Android* 工程的 *buildSrc* 目录中的 *build.gradle* 文件中，引入 *Booster* 依赖：
