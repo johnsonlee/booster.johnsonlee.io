@@ -10,7 +10,7 @@
 buildscript {
     ext {
         kotlin_version = '1.3.31'
-        booster_version = '3.1.0'
+        booster_version = '4.1.0'
     }
     repositories {
         mavenLocal()
