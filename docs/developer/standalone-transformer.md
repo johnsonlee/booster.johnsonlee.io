@@ -11,54 +11,10 @@
 
     - [AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt)
 
+- [booster-transform-javassist](https://github.com/didi/booster/tree/master/booster-transform-javassist)
 
-## 扫描 *Android Transform Pipeline* 的产物
+    - [JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt)
 
-通过 [TransformHelper](https://github.com/didi/booster/blob/master/booster-transform-util/src/main/kotlin/com/didiglobal/booster/transform/util/TransformHelper.kt)，我们就可以很方便对 *Android Transform Pipeline* 的产物进行扫描：
-
-```kotlin
-val variant = "debug"
-val input = File("build").file("intermediates", "transforms", "booster", variant)
-val output = File(System.getProperty("java.io.tmpdir"))
-
-TransformHelper(input).transform(output, AsmTransformer(object : ClassTransformer {
-    override fun transform(context: TransformContext, klass: ClassNode): ClassNode {
-        println(klass.name)
-        return klass
-    }
-}))
-```
-
-## 扫描 *JAR* 文件
-
-通过上面提供的扩展方法，我们可以很方便的扫描 *JAR* 文件中的 *class*：
-
-```kotlin
-File("some.jar").transform(File("out")) { bytecode ->
-    val klass = bytecode.asClassNode()
-    println(klass.name)
-    bytecode
-}
-```
-
-或者
-
-```kotlin
-JarFile("some.jar").use { jar ->
-    jar.entries().iterator().forEach { entry ->
-        jar.transform(entry.name) { klass ->
-            println(klass.name)
-        }
-    }
-}
-```
-
-## 扫描 *class* 文件
-
-```kotlin
-val klass = File("Some.class").asClassNode()
-println(klass.name)
-```
 
 ## 运行时注入
 
@@ -130,5 +86,53 @@ val tcl = TransformerClassLoader(delegate) {
     JavassistTransformer(it)
 }
 Class.forName("io.johnsonlee.booster.SimpleClass", tcl)
+```
+
+## 扫描 *Android Transform Pipeline* 的产物
+
+通过 [TransformHelper](https://github.com/didi/booster/blob/master/booster-transform-util/src/main/kotlin/com/didiglobal/booster/transform/util/TransformHelper.kt)，我们就可以很方便对 *Android Transform Pipeline* 的产物进行扫描：
+
+```kotlin
+val variant = "debug"
+val input = File("build").file("intermediates", "transforms", "booster", variant)
+val output = File(System.getProperty("java.io.tmpdir"))
+
+TransformHelper(input).transform(output, AsmTransformer(object : ClassTransformer {
+    override fun transform(context: TransformContext, klass: ClassNode): ClassNode {
+        println(klass.name)
+        return klass
+    }
+}))
+```
+
+## 扫描 *JAR* 文件
+
+通过上面提供的扩展方法，我们可以很方便的扫描 *JAR* 文件中的 *class*：
+
+```kotlin
+File("some.jar").transform(File("out")) { bytecode ->
+    val klass = bytecode.asClassNode()
+    println(klass.name)
+    bytecode
+}
+```
+
+或者
+
+```kotlin
+JarFile("some.jar").use { jar ->
+    jar.entries().iterator().forEach { entry ->
+        jar.transform(entry.name) { klass ->
+            println(klass.name)
+        }
+    }
+}
+```
+
+## 扫描 *class* 文件
+
+```kotlin
+val klass = File("Some.class").asClassNode()
+println(klass.name)
 ```
 
