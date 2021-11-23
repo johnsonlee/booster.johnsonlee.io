@@ -1,4 +1,4 @@
-# 脱离 *Gradle* 环境
+# 脱离 *Gradle* 环境运行
 
 在平常的开发过程中，我们可能需要脱离 *Gradle* 环境，对某些个 *JAR*、 *class* 文件或者是 *Android Transform Pipeline* 的产物进行扫描来得到一些结果，鉴于此，*Booster* 提供了一系列实用工具类和扩展方法，来帮助开发者提升效率：
 
