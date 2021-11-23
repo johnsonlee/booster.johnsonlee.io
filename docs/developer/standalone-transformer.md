@@ -59,3 +59,76 @@ JarFile("some.jar").use { jar ->
 val klass = File("Some.class").asClassNode()
 println(klass.name)
 ```
+
+## 运行时注入
+
+一般在 *Java* 环境中，可能会需要在运行时修改某个 *Class* 或者，我们可以通过 `Transformer` 很容易的实现。
+
+### 自定义 ClassLoader
+
+```kotlin
+class TransformerClassLoader : URLClassLoader {
+
+    private val transformer: Transformer
+
+    constructor(
+            delegate: URLClassLoader,
+            factory: (ClassLoader) -> Transformer
+    ) : super(delegate.urLs) {
+        this.transformer = factory(this)
+    }
+
+    constructor(
+            delegate: URLClassLoader,
+            factory: (ClassLoader, Iterable<Transformer>) -> Transformer,
+            vararg transformer: Transformer
+    ) : super(delegate.urLs) {
+        this.transformer = factory(this, transformer.asIterable())
+    }
+
+    private val classpath: Collection<File> by lazy {
+        this.urLs.map { File(it.path) }
+    }
+
+    private val context: TransformContext by lazy {
+        object : AbstractTransformContext(javaClass.name, javaClass.name, classpath, classpath) {}
+    }
+
+    override fun findClass(name: String): Class<*> {
+        val bytecode = transformer.run {
+            try {
+                onPreTransform(context)
+                getResourceAsStream("${name.replace('.', '/')}.class")?.use(InputStream::readBytes)?.let {
+                    transform(context, it)
+                } ?: throw IOException("Read class $name failed")
+            } finally {
+                onPostTransform(context)
+            }
+        }
+
+        return defineClass(name, bytecode, 0, bytecode.size)
+    }
+
+}
+```
+
+### 使用 ASM
+
+```kotlin
+val delegate = Thread.currentThread().contextClassLoader as URLClassLoader
+val tcl = TransformerClassLoader(delegate) {
+    AsmTransformer(it)
+}
+Class.forName("io.johnsonlee.booster.SimpleClass", tcl)
+```
+
+### 使用 Javassist
+
+```kotlin
+val delegate = Thread.currentThread().contextClassLoader as URLClassLoader
+val tcl = TransformerClassLoader(delegate) {
+    JavassistTransformer(it)
+}
+Class.forName("io.johnsonlee.booster.SimpleClass", tcl)
+```
+
