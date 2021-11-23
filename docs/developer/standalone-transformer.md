@@ -62,7 +62,7 @@ println(klass.name)
 
 ## 运行时注入
 
-一般在 *Java* 环境中，可能会需要在运行时修改某个 *Class* 或者，我们可以通过 `Transformer` 很容易的实现。
+一般在 *Java* 环境中，可能会需要在运行时修改某些特定的 *Class* ，我们可以通过 `Transformer` 很容易的实现。
 
 ### 自定义 ClassLoader
 
