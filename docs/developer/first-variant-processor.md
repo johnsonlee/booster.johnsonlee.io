@@ -65,7 +65,7 @@ compileTestKotlin {
 
 dependencies {
     /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
-    kapt "com.google.auto.service:auto-service:1.0-rc6"
+    kapt "com.google.auto.service:auto-service:1.0"
     api 'com.android.tools.build:gradle:$agp_version'
     api "com.didiglobal.booster:booster-api:$booster_version"
 }

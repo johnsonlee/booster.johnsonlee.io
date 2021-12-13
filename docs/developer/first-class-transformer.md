@@ -186,7 +186,7 @@ compileTestKotlin {
 dependencies {
     api "com.android.tools.build:gradle:$agp_version"
     /* 👇👇👇👇 引用这两个模块 👇👇👇👇 */
-    kapt "com.google.auto.service:auto-service:1.0-rc6"
+    kapt "com.google.auto.service:auto-service:1.0"
     api "com.didiglobal.booster:booster-api:$booster_version"
 }
 ```
@@ -199,7 +199,7 @@ dependencies {
 dependencies {
     api "com.android.tools.build:gradle:$agp_version"
     /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
-    kapt "com.google.auto.service:auto-service:1.0-rc6"
+    kapt "com.google.auto.service:auto-service:1.0"
     api "com.didiglobal.booster:booster-api:$booster_version"
     api "com.didiglobal.booster:booster-transform-asm:$booster_version"
 }
@@ -232,7 +232,7 @@ class FirstClassTransformer : ClassTransformer {
 dependencies {
     api "com.android.tools.build:gradle:$agp_version"
     /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
-    kapt "com.google.auto.service:auto-service:1.0-rc6"
+    kapt "com.google.auto.service:auto-service:1.0"
     api "com.didiglobal.booster:booster-api:$booster_version"
     api "com.didiglobal.booster:booster-transform-javassist:$booster_version"
 }
