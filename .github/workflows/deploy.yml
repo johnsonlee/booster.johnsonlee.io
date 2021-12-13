@@ -1,0 +1,43 @@
+name: Deploy blog to GitHub page
+
+on:
+  push:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.1.5
+        with:
+          node-version: '10.x'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      - name: Build
+        run: |
+          rm -rvf dist
+          npm run docs:build
+
+      - name: Deploy
+        working-directory: ./dist
+        run: |
+          echo "booster.johnsonlee.io" > CNAME
+          git init
+          git config user.name "johnsonlee"
+          git config user.email "g.johnsonlee@gmail.com"
+          git remote add origin https://johnsonlee:${GH_DEPLOY_TOKEN}@github.com/johnsonlee/booster.johnsonlee.io.git
+          git add .
+          git commit -m "Deployed by GitHub actions" -a
+          git push -u origin HEAD:gh-pages --force
+        env:
+          GH_DEPLOY_TOKEN: ${{ secrets.GH_DEPLOY_TOKEN }}
