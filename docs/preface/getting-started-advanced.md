@@ -18,7 +18,7 @@
 ```groovy
 allprojects { project ->
     buildscript {
-        ext.booster_version = '4.2.0'
+        ext.booster_version = '4.3.0'
         repositories {
             mavenLocal()
             google()
