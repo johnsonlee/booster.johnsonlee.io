@@ -1,0 +1,240 @@
+# SharedPreferences Optimization
+
+## The problems of SharedPreferences
+
+The design of [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences) has always been criticized, actually, the [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences) was designed by Google's engineers was not intented to be used as it is now. However, it has been used widely in an unexpected way, and caused plenty of UI janks and ANRs.
+
+How does [SharedPreferences](https://developer.android.com/reference/android/content/SharedPreferences) cause UI janks and ANRs, this has to start from the [SharedPreferences.Editor.apply()](https://developer.android.com/reference/android/content/SharedPreferences.Editor#apply%28%29), as shown in the following diagram:
+
+<img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBjb250ZW50U2NyaXB0VHlwZT0iYXBwbGljYXRpb24vZWNtYXNjcmlwdCIgY29udGVudFN0eWxlVHlwZT0idGV4dC9jc3MiIGhlaWdodD0iNjU3cHgiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiIHN0eWxlPSJ3aWR0aDoxMjIxcHg7aGVpZ2h0OjY1N3B4OyIgdmVyc2lvbj0iMS4xIiB2aWV3Qm94PSIwIDAgMTIyMSA2NTciIHdpZHRoPSIxMjIxcHgiIHpvb21BbmRQYW49Im1hZ25pZnkiPjxkZWZzPjxmaWx0ZXIgaGVpZ2h0PSIzMDAlIiBpZD0iZmgzcXFrYnMwcjhweSIgd2lkdGg9IjMwMCUiIHg9Ii0xIiB5PSItMSI+PGZlR2F1c3NpYW5CbHVyIHJlc3VsdD0iYmx1ck91dCIgc3RkRGV2aWF0aW9uPSIyLjAiLz48ZmVDb2xvck1hdHJpeCBpbj0iYmx1ck91dCIgcmVzdWx0PSJibHVyT3V0MiIgdHlwZT0ibWF0cml4IiB2YWx1ZXM9IjAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIDAgMCAwIC40IDAiLz48ZmVPZmZzZXQgZHg9IjQuMCIgZHk9IjQuMCIgaW49ImJsdXJPdXQyIiByZXN1bHQ9ImJsdXJPdXQzIi8+PGZlQmxlbmQgaW49IlNvdXJjZUdyYXBoaWMiIGluMj0iYmx1ck91dDMiIG1vZGU9Im5vcm1hbCIvPjwvZmlsdGVyPjwvZGVmcz48Zz48cmVjdCBmaWxsPSIjRkZGRkZGIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMTc4LjY2NDEiIHN0eWxlPSJzdHJva2U6ICNGRkZGRkY7IHN0cm9rZS13aWR0aDogMS4wOyIgd2lkdGg9IjEwIiB4PSIxMjAiIHk9IjExMi41NjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMTIwIiB4Mj0iMTIwIiB5MT0iMTEyLjU2MjUiIHkyPSIyOTEuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEzMCIgeDI9IjEzMCIgeTE9IjExMi41NjI1IiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIxMjAiIHgyPSIxMzAiIHkxPSIxMTIuNTYyNSIgeTI9IjExMi41NjI1Ii8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjEzNS4zOTg0IiBzdHlsZT0ic3Ryb2tlOiAjRkZGRkZGOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iMTIwIiB5PSIzMTkuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEyMCIgeDI9IjEyMCIgeTE9IjMxOS4yMjY2IiB5Mj0iNDU0LjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEzMCIgeDI9IjEzMCIgeTE9IjMxOS4yMjY2IiB5Mj0iNDU0LjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEyMCIgeDI9IjEzMCIgeTE9IjQ1NC42MjUiIHkyPSI0NTQuNjI1Ii8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjcyLjI2NTYiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgd2lkdGg9IjEwIiB4PSIxMjAiIHk9IjU1NC44OTA2Ii8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjE0OS41MzEzIiBzdHlsZT0ic3Ryb2tlOiAjRkZGRkZGOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iMjM1LjUiIHk9IjE0MS42OTUzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMjM1LjUiIHgyPSIyMzUuNSIgeTE9IjE0MS42OTUzIiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIyNDUuNSIgeDI9IjI0NS41IiB5MT0iMTQxLjY5NTMiIHkyPSIyOTEuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjIzNS41IiB4Mj0iMjQ1LjUiIHkxPSIxNDEuNjk1MyIgeTI9IjE0MS42OTUzIi8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjEyMS4zOTg0IiBzdHlsZT0ic3Ryb2tlOiAjRkZGRkZGOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iMjM1LjUiIHk9IjMxOS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMjM1LjUiIHgyPSIyMzUuNSIgeTE9IjMxOS4yMjY2IiB5Mj0iNDQwLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjI0NS41IiB4Mj0iMjQ1LjUiIHkxPSIzMTkuMjI2NiIgeTI9IjQ0MC42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIyMzUuNSIgeDI9IjI0NS41IiB5MT0iNDQwLjYyNSIgeTI9IjQ0MC42MjUiLz48cmVjdCBmaWxsPSIjRkZGRkZGIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMjkuMTMyOCIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB3aWR0aD0iMTAiIHg9IjQxNy41IiB5PSIxNzAuODI4MSIvPjxyZWN0IGZpbGw9IiNGRkZGRkYiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIyOS4xMzI4IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iNTM5IiB5PSIyNTQuMDkzOCIvPjxyZWN0IGZpbGw9IiNGRkZGRkYiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSI4Ni4yNjU2IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iNzIyIiB5PSIzNDAuMzU5NCIvPjxyZWN0IGZpbGw9IiNGRkZGRkYiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSI0My4xMzI4IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iOTU1IiB5PSIzNjkuNDkyMiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjMyIiB4Mj0iMzIiIHkxPSIzOC4yOTY5IiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMS4wLDQuMDsiIHgxPSIzMiIgeDI9IjMyIiB5MT0iMjkxLjIyNjYiIHkyPSIzMTkuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjMyIiB4Mj0iMzIiIHkxPSIzMTkuMjI2NiIgeTI9IjQ2Mi42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMS4wLDQuMDsiIHgxPSIzMiIgeDI9IjMyIiB5MT0iNDYyLjYyNSIgeTI9IjQ5MC42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIzMiIgeDI9IjMyIiB5MT0iNDkwLjYyNSIgeTI9IjY0NS4xNTYzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMTI1IiB4Mj0iMTI1IiB5MT0iMzguMjk2OSIgeTI9IjI5MS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDEuMCw0LjA7IiB4MT0iMTI1IiB4Mj0iMTI1IiB5MT0iMjkxLjIyNjYiIHkyPSIzMTkuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEyNSIgeDI9IjEyNSIgeTE9IjMxOS4yMjY2IiB5Mj0iNDYyLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAxLjAsNC4wOyIgeDE9IjEyNSIgeDI9IjEyNSIgeTE9IjQ2Mi42MjUiIHkyPSI0OTAuNjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMTI1IiB4Mj0iMTI1IiB5MT0iNDkwLjYyNSIgeTI9IjY0NS4xNTYzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMjQwIiB4Mj0iMjQwIiB5MT0iMzguMjk2OSIgeTI9IjI5MS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDEuMCw0LjA7IiB4MT0iMjQwIiB4Mj0iMjQwIiB5MT0iMjkxLjIyNjYiIHkyPSIzMTkuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjI0MCIgeDI9IjI0MCIgeTE9IjMxOS4yMjY2IiB5Mj0iNDYyLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAxLjAsNC4wOyIgeDE9IjI0MCIgeDI9IjI0MCIgeTE9IjQ2Mi42MjUiIHkyPSI0OTAuNjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMjQwIiB4Mj0iMjQwIiB5MT0iNDkwLjYyNSIgeTI9IjY0NS4xNTYzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iNDIyLjUiIHgyPSI0MjIuNSIgeTE9IjM4LjI5NjkiIHkyPSIyOTEuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAxLjAsNC4wOyIgeDE9IjQyMi41IiB4Mj0iNDIyLjUiIHkxPSIyOTEuMjI2NiIgeTI9IjMxOS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iNDIyLjUiIHgyPSI0MjIuNSIgeTE9IjMxOS4yMjY2IiB5Mj0iNDYyLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAxLjAsNC4wOyIgeDE9IjQyMi41IiB4Mj0iNDIyLjUiIHkxPSI0NjIuNjI1IiB5Mj0iNDkwLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjQyMi41IiB4Mj0iNDIyLjUiIHkxPSI0OTAuNjI1IiB5Mj0iNjQ1LjE1NjMiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSI1NDMuNSIgeDI9IjU0My41IiB5MT0iMzguMjk2OSIgeTI9IjI5MS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDEuMCw0LjA7IiB4MT0iNTQzLjUiIHgyPSI1NDMuNSIgeTE9IjI5MS4yMjY2IiB5Mj0iMzE5LjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSI1NDMuNSIgeDI9IjU0My41IiB5MT0iMzE5LjIyNjYiIHkyPSI0NjIuNjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDEuMCw0LjA7IiB4MT0iNTQzLjUiIHgyPSI1NDMuNSIgeTE9IjQ2Mi42MjUiIHkyPSI0OTAuNjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iNTQzLjUiIHgyPSI1NDMuNSIgeTE9IjQ5MC42MjUiIHkyPSI2NDUuMTU2MyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjcyNi41IiB4Mj0iNzI2LjUiIHkxPSIzOC4yOTY5IiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMS4wLDQuMDsiIHgxPSI3MjYuNSIgeDI9IjcyNi41IiB5MT0iMjkxLjIyNjYiIHkyPSIzMTkuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjcyNi41IiB4Mj0iNzI2LjUiIHkxPSIzMTkuMjI2NiIgeTI9IjQ2Mi42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMS4wLDQuMDsiIHgxPSI3MjYuNSIgeDI9IjcyNi41IiB5MT0iNDYyLjYyNSIgeTI9IjQ5MC42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSI3MjYuNSIgeDI9IjcyNi41IiB5MT0iNDkwLjYyNSIgeTI9IjY0NS4xNTYzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iOTU5LjUiIHgyPSI5NTkuNSIgeTE9IjM4LjI5NjkiIHkyPSIyOTEuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAxLjAsNC4wOyIgeDE9Ijk1OS41IiB4Mj0iOTU5LjUiIHkxPSIyOTEuMjI2NiIgeTI9IjMxOS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iOTU5LjUiIHgyPSI5NTkuNSIgeTE9IjMxOS4yMjY2IiB5Mj0iNDYyLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAxLjAsNC4wOyIgeDE9Ijk1OS41IiB4Mj0iOTU5LjUiIHkxPSI0NjIuNjI1IiB5Mj0iNDkwLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9Ijk1OS41IiB4Mj0iOTU5LjUiIHkxPSI0OTAuNjI1IiB5Mj0iNjQ1LjE1NjMiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIxMTQ5LjUiIHgyPSIxMTQ5LjUiIHkxPSIzOC4yOTY5IiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMS4wLDQuMDsiIHgxPSIxMTQ5LjUiIHgyPSIxMTQ5LjUiIHkxPSIyOTEuMjI2NiIgeTI9IjMxOS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMTE0OS41IiB4Mj0iMTE0OS41IiB5MT0iMzE5LjIyNjYiIHkyPSI0NjIuNjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDEuMCw0LjA7IiB4MT0iMTE0OS41IiB4Mj0iMTE0OS41IiB5MT0iNDYyLjYyNSIgeTI9IjQ5MC42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIxMTQ5LjUiIHgyPSIxMTQ5LjUiIHkxPSI0OTAuNjI1IiB5Mj0iNjQ1LjE1NjMiLz48cmVjdCBmaWxsPSIjRkVGRUNFIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMzAuMjk2OSIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjU7IiB3aWR0aD0iNDQiIHg9IjgiIHk9IjMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSIzMCIgeD0iMTUiIHk9IjIyLjk5NTEiPkFNUzwvdGV4dD48cmVjdCBmaWxsPSIjRkVGRUNFIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMzAuMjk2OSIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjU7IiB3aWR0aD0iMTEwIiB4PSI2OCIgeT0iMyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9Ijk2IiB4PSI3NSIgeT0iMjIuOTk1MSI+QWN0aXZpdHlUaHJlYWQ8L3RleHQ+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjMwLjI5NjkiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS41OyIgd2lkdGg9IjkzIiB4PSIxOTIiIHk9IjMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSI3OSIgeD0iMTk5IiB5PSIyMi45OTUxIj5NYWluQWN0aXZpdHk8L3RleHQ+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjMwLjI5NjkiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS41OyIgd2lkdGg9IjY4IiB4PSIzODYuNSIgeT0iMyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9IjU0IiB4PSIzOTMuNSIgeT0iMjIuOTk1MSI+Q29udGV4dDwvdGV4dD48cmVjdCBmaWxsPSIjRkVGRUNFIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMzAuMjk2OSIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjU7IiB3aWR0aD0iMTQ3IiB4PSI0NjguNSIgeT0iMyIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9IjEzMyIgeD0iNDc1LjUiIHk9IjIyLjk5NTEiPlNoYXJlZFByZWZlcmVuY2VzPC90ZXh0PjxyZWN0IGZpbGw9IiNGRUZFQ0UiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIzMC4yOTY5IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuNTsiIHdpZHRoPSIxOTEiIHg9IjYyOS41IiB5PSIzIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iMTc3IiB4PSI2MzYuNSIgeT0iMjIuOTk1MSI+U2hhcmVkUHJlZmVyZW5jZXMuRWRpdG9yPC90ZXh0PjxyZWN0IGZpbGw9IiNGRUZFQ0UiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIzMC4yOTY5IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuNTsiIHdpZHRoPSIyNDciIHg9IjgzNC41IiB5PSIzIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iMjMzIiB4PSI4NDEuNSIgeT0iMjIuOTk1MSI+U2hhcmVkUHJlZmVyZW5jZXNJbXBsLkVkaXRvckltcGw8L3RleHQ+PHJlY3QgZmlsbD0iI0ZFRkVDRSIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjMwLjI5NjkiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS41OyIgd2lkdGg9IjEwNSIgeD0iMTA5NS41IiB5PSIzIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iOTEiIHg9IjExMDIuNSIgeT0iMjIuOTk1MSI+UXVldWVkV29yazwvdGV4dD48cmVjdCBmaWxsPSIjRkZGRkZGIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMTc4LjY2NDEiIHN0eWxlPSJzdHJva2U6ICNGRkZGRkY7IHN0cm9rZS13aWR0aDogMS4wOyIgd2lkdGg9IjEwIiB4PSIxMjAiIHk9IjExMi41NjI1Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMTIwIiB4Mj0iMTIwIiB5MT0iMTEyLjU2MjUiIHkyPSIyOTEuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEzMCIgeDI9IjEzMCIgeTE9IjExMi41NjI1IiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIxMjAiIHgyPSIxMzAiIHkxPSIxMTIuNTYyNSIgeTI9IjExMi41NjI1Ii8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjEzNS4zOTg0IiBzdHlsZT0ic3Ryb2tlOiAjRkZGRkZGOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iMTIwIiB5PSIzMTkuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEyMCIgeDI9IjEyMCIgeTE9IjMxOS4yMjY2IiB5Mj0iNDU0LjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEzMCIgeDI9IjEzMCIgeTE9IjMxOS4yMjY2IiB5Mj0iNDU0LjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEyMCIgeDI9IjEzMCIgeTE9IjQ1NC42MjUiIHkyPSI0NTQuNjI1Ii8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjcyLjI2NTYiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgd2lkdGg9IjEwIiB4PSIxMjAiIHk9IjU1NC44OTA2Ii8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjE0OS41MzEzIiBzdHlsZT0ic3Ryb2tlOiAjRkZGRkZGOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iMjM1LjUiIHk9IjE0MS42OTUzIi8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMjM1LjUiIHgyPSIyMzUuNSIgeTE9IjE0MS42OTUzIiB5Mj0iMjkxLjIyNjYiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIyNDUuNSIgeDI9IjI0NS41IiB5MT0iMTQxLjY5NTMiIHkyPSIyOTEuMjI2NiIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjIzNS41IiB4Mj0iMjQ1LjUiIHkxPSIxNDEuNjk1MyIgeTI9IjE0MS42OTUzIi8+PHJlY3QgZmlsbD0iI0ZGRkZGRiIgZmlsdGVyPSJ1cmwoI2ZoM3Fxa2JzMHI4cHkpIiBoZWlnaHQ9IjEyMS4zOTg0IiBzdHlsZT0ic3Ryb2tlOiAjRkZGRkZGOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iMjM1LjUiIHk9IjMxOS4yMjY2Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMjM1LjUiIHgyPSIyMzUuNSIgeTE9IjMxOS4yMjY2IiB5Mj0iNDQwLjYyNSIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjI0NS41IiB4Mj0iMjQ1LjUiIHkxPSIzMTkuMjI2NiIgeTI9IjQ0MC42MjUiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIyMzUuNSIgeDI9IjI0NS41IiB5MT0iNDQwLjYyNSIgeTI9IjQ0MC42MjUiLz48cmVjdCBmaWxsPSIjRkZGRkZGIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMjkuMTMyOCIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB3aWR0aD0iMTAiIHg9IjQxNy41IiB5PSIxNzAuODI4MSIvPjxyZWN0IGZpbGw9IiNGRkZGRkYiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIyOS4xMzI4IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iNTM5IiB5PSIyNTQuMDkzOCIvPjxyZWN0IGZpbGw9IiNGRkZGRkYiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSI4Ni4yNjU2IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iNzIyIiB5PSIzNDAuMzU5NCIvPjxyZWN0IGZpbGw9IiNGRkZGRkYiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSI0My4xMzI4IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMCIgeD0iOTU1IiB5PSIzNjkuNDkyMiIvPjxyZWN0IGZpbGw9IiNFRUVFRUUiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIzIiBzdHlsZT0ic3Ryb2tlOiAjRUVFRUVFOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMjA2LjUiIHg9IjMiIHk9IjY4Ljg2MzMiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjMDAwMDAwOyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIzIiB4Mj0iMTIwOS41IiB5MT0iNjguODYzMyIgeTI9IjY4Ljg2MzMiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjMDAwMDAwOyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIzIiB4Mj0iMTIwOS41IiB5MT0iNzEuODYzMyIgeTI9IjcxLjg2MzMiLz48cmVjdCBmaWxsPSIjRUVFRUVFIiBmaWx0ZXI9InVybCgjZmgzcXFrYnMwcjhweSkiIGhlaWdodD0iMjMuMTMyOCIgc3R5bGU9InN0cm9rZTogIzAwMDAwMDsgc3Ryb2tlLXdpZHRoOiAyLjA7IiB3aWR0aD0iODYiIHg9IjU2My4yNSIgeT0iNTguMjk2OSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBmb250LXdlaWdodD0iYm9sZCIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSI2NyIgeD0iNTY5LjI1IiB5PSI3NC4zNjM4Ij5vbkNyZWF0ZTwvdGV4dD48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjEwOCwxMDguNTYyNSwxMTgsMTEyLjU2MjUsMTA4LDExNi41NjI1LDExMiwxMTIuNTYyNSIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMzIiIHgyPSIxMTQiIHkxPSIxMTIuNTYyNSIgeTI9IjExMi41NjI1Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iNjkiIHg9IjM5IiB5PSIxMDcuNDk2NiI+b25DcmVhdGUoKTwvdGV4dD48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjIyMy41LDEzNy42OTUzLDIzMy41LDE0MS42OTUzLDIyMy41LDE0NS42OTUzLDIyNy41LDE0MS42OTUzIiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIxMzAiIHgyPSIyMjkuNSIgeTE9IjE0MS42OTUzIiB5Mj0iMTQxLjY5NTMiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSI2OSIgeD0iMTM3IiB5PSIxMzYuNjI5NCI+b25DcmVhdGUoKTwvdGV4dD48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjQwNS41LDE2Ni44MjgxLDQxNS41LDE3MC44MjgxLDQwNS41LDE3NC44MjgxLDQwOS41LDE3MC44MjgxIiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIyNDUuNSIgeDI9IjQxMS41IiB5MT0iMTcwLjgyODEiIHkyPSIxNzAuODI4MSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9IjE1MyIgeD0iMjUyLjUiIHk9IjE2NS43NjIyIj5nZXRTaGFyZWRQcmVmZXJlbmNlcygpPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iMjU2LjUsMTk1Ljk2MDksMjQ2LjUsMTk5Ljk2MDksMjU2LjUsMjAzLjk2MDksMjUyLjUsMTk5Ljk2MDkiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAyLjAsMi4wOyIgeDE9IjI1MC41IiB4Mj0iNDIxLjUiIHkxPSIxOTkuOTYwOSIgeTI9IjE5OS45NjA5Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iMTIyIiB4PSIyNjIuNSIgeT0iMTk0Ljg5NSI+U2hhcmVkUHJlZmVyZW5jZXM8L3RleHQ+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSI1MjcsMjUwLjA5MzgsNTM3LDI1NC4wOTM4LDUyNywyNTguMDkzOCw1MzEsMjU0LjA5MzgiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjI0NS41IiB4Mj0iNTMzIiB5MT0iMjU0LjA5MzgiIHkyPSIyNTQuMDkzOCIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9IjM0IiB4PSIyNTIuNSIgeT0iMjQ5LjAyNzgiPmVkaXQoKTwvdGV4dD48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjI1Ni41LDI3OS4yMjY2LDI0Ni41LDI4My4yMjY2LDI1Ni41LDI4Ny4yMjY2LDI1Mi41LDI4My4yMjY2IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMi4wLDIuMDsiIHgxPSIyNTAuNSIgeDI9IjU0MyIgeTE9IjI4My4yMjY2IiB5Mj0iMjgzLjIyNjYiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSIxNjMiIHg9IjI2Mi41IiB5PSIyNzguMTYwNiI+U2hhcmVkUHJlZmVyZW5jZXMuRWRpdG9yPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iNzEwLDMzNi4zNTk0LDcyMCwzNDAuMzU5NCw3MTAsMzQ0LjM1OTQsNzE0LDM0MC4zNTk0IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIyNDUuNSIgeDI9IjcxNiIgeTE9IjM0MC4zNTk0IiB5Mj0iMzQwLjM1OTQiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSI0NCIgeD0iMjUyLjUiIHk9IjMzNS4yOTM1Ij5hcHBseSgpPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iOTQzLDM2NS40OTIyLDk1MywzNjkuNDkyMiw5NDMsMzczLjQ5MjIsOTQ3LDM2OS40OTIyIiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSI3MzIiIHgyPSI5NDkiIHkxPSIzNjkuNDkyMiIgeTI9IjM2OS40OTIyIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iNDQiIHg9IjczOSIgeT0iMzY0LjQyNjMiPmFwcGx5KCk8L3RleHQ+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIxMTM4LDM5NC42MjUsMTE0OCwzOTguNjI1LDExMzgsNDAyLjYyNSwxMTQyLDM5OC42MjUiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9Ijk2NSIgeDI9IjExNDQiIHkxPSIzOTguNjI1IiB5Mj0iMzk4LjYyNSIvPjx0ZXh0IGZpbGw9IiMwMDAwMDAiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjEzIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9IjkzIiB4PSI5NzIiIHk9IjM5My41NTkxIj5hZGQoUnVubmFibGUpPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iNzQzLDQwOC42MjUsNzMzLDQxMi42MjUsNzQzLDQxNi42MjUsNzM5LDQxMi42MjUiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAyLjAsMi4wOyIgeDE9IjczNyIgeDI9Ijk1OSIgeTE9IjQxMi42MjUiIHkyPSI0MTIuNjI1Ii8+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIyNTYuNSw0MjIuNjI1LDI0Ni41LDQyNi42MjUsMjU2LjUsNDMwLjYyNSwyNTIuNSw0MjYuNjI1IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsgc3Ryb2tlLWRhc2hhcnJheTogMi4wLDIuMDsiIHgxPSIyNTAuNSIgeDI9IjcyNiIgeTE9IjQyNi42MjUiIHkyPSI0MjYuNjI1Ii8+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIxNDEsNDM2LjYyNSwxMzEsNDQwLjYyNSwxNDEsNDQ0LjYyNSwxMzcsNDQwLjYyNSIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDIuMCwyLjA7IiB4MT0iMTM1IiB4Mj0iMjM5LjUiIHkxPSI0NDAuNjI1IiB5Mj0iNDQwLjYyNSIvPjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iNDMsNDUwLjYyNSwzMyw0NTQuNjI1LDQzLDQ1OC42MjUsMzksNDU0LjYyNSIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IHN0cm9rZS1kYXNoYXJyYXk6IDIuMCwyLjA7IiB4MT0iMzciIHgyPSIxMjQiIHkxPSI0NTQuNjI1IiB5Mj0iNDU0LjYyNSIvPjxyZWN0IGZpbGw9IiNFRUVFRUUiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIzIiBzdHlsZT0ic3Ryb2tlOiAjRUVFRUVFOyBzdHJva2Utd2lkdGg6IDEuMDsiIHdpZHRoPSIxMjA2LjUiIHg9IjMiIHk9IjUxMS4xOTE0Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogIzAwMDAwMDsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMyIgeDI9IjEyMDkuNSIgeTE9IjUxMS4xOTE0IiB5Mj0iNTExLjE5MTQiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjMDAwMDAwOyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIzIiB4Mj0iMTIwOS41IiB5MT0iNTE0LjE5MTQiIHkyPSI1MTQuMTkxNCIvPjxyZWN0IGZpbGw9IiNFRUVFRUUiIGZpbHRlcj0idXJsKCNmaDNxcWticzByOHB5KSIgaGVpZ2h0PSIyMy4xMzI4IiBzdHlsZT0ic3Ryb2tlOiAjMDAwMDAwOyBzdHJva2Utd2lkdGg6IDIuMDsiIHdpZHRoPSI4MiIgeD0iNTY1LjI1IiB5PSI1MDAuNjI1Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZvbnQtd2VpZ2h0PSJib2xkIiBsZW5ndGhBZGp1c3Q9InNwYWNpbmdBbmRHbHlwaHMiIHRleHRMZW5ndGg9IjYzIiB4PSI1NzEuMjUiIHk9IjUxNi42OTE5Ij5vblBhdXNlPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iMTA4LDU1MC44OTA2LDExOCw1NTQuODkwNiwxMDgsNTU4Ljg5MDYsMTEyLDU1NC44OTA2IiBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiLz48bGluZSBzdHlsZT0ic3Ryb2tlOiAjQTgwMDM2OyBzdHJva2Utd2lkdGg6IDEuMDsiIHgxPSIzMiIgeDI9IjExNCIgeTE9IjU1NC44OTA2IiB5Mj0iNTU0Ljg5MDYiLz48dGV4dCBmaWxsPSIjMDAwMDAwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgbGVuZ3RoQWRqdXN0PSJzcGFjaW5nQW5kR2x5cGhzIiB0ZXh0TGVuZ3RoPSI2NSIgeD0iMzkiIHk9IjU0OS44MjQ3Ij5vblBhdXNlKCk8L3RleHQ+PHBvbHlnb24gZmlsbD0iI0E4MDAzNiIgcG9pbnRzPSIyMjguNSw1ODAuMDIzNCwyMzguNSw1ODQuMDIzNCwyMjguNSw1ODguMDIzNCwyMzIuNSw1ODQuMDIzNCIgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7Ii8+PGxpbmUgc3R5bGU9InN0cm9rZTogI0E4MDAzNjsgc3Ryb2tlLXdpZHRoOiAxLjA7IiB4MT0iMTMwIiB4Mj0iMjM0LjUiIHkxPSI1ODQuMDIzNCIgeTI9IjU4NC4wMjM0Ii8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iNjUiIHg9IjEzNyIgeT0iNTc4Ljk1NzUiPm9uUGF1c2UoKTwvdGV4dD48cG9seWdvbiBmaWxsPSIjQTgwMDM2IiBwb2ludHM9IjExMzgsNjA5LjE1NjMsMTE0OCw2MTMuMTU2MywxMTM4LDYxNy4xNTYzLDExNDIsNjEzLjE1NjMiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIgeDE9IjEzMCIgeDI9IjExNDQiIHkxPSI2MTMuMTU2MyIgeTI9IjYxMy4xNTYzIi8+PHRleHQgZmlsbD0iIzAwMDAwMCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGxlbmd0aEFkanVzdD0ic3BhY2luZ0FuZEdseXBocyIgdGV4dExlbmd0aD0iODYiIHg9IjEzNyIgeT0iNjA4LjA5MDMiPndhaXRUb0ZpbmlzaCgpPC90ZXh0Pjxwb2x5Z29uIGZpbGw9IiNBODAwMzYiIHBvaW50cz0iNDMsNjIzLjE1NjMsMzMsNjI3LjE1NjMsNDMsNjMxLjE1NjMsMzksNjI3LjE1NjMiIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyIvPjxsaW5lIHN0eWxlPSJzdHJva2U6ICNBODAwMzY7IHN0cm9rZS13aWR0aDogMS4wOyBzdHJva2UtZGFzaGFycmF5OiAyLjAsMi4wOyIgeDE9IjM3IiB4Mj0iMTI0IiB5MT0iNjI3LjE1NjMiIHkyPSI2MjcuMTU2MyIvPjwhLS1NRDU9Wzg4MzYwYzM3NWJkNzQyYzJmMDY4ZTYwMWRjZTJiNzc2XQpAc3RhcnR1bWwNCmhpZGUgZm9vdGJveA0KPT0gb25DcmVhdGUgPT0NCkFNUyAtPiBBY3Rpdml0eVRocmVhZCArKyA6IG9uQ3JlYXRlKCkNCkFjdGl2aXR5VGhyZWFkIC0+IE1haW5BY3Rpdml0eSsrIDogb25DcmVhdGUoKQ0KTWFpbkFjdGl2aXR5IC0+IENvbnRleHQgKysgOiBnZXRTaGFyZWRQcmVmZXJlbmNlcygpDQpyZXR1cm4gU2hhcmVkUHJlZmVyZW5jZXMNCnx8fA0KDQpNYWluQWN0aXZpdHkgLT4gU2hhcmVkUHJlZmVyZW5jZXMgKysgOiBlZGl0KCkNCnJldHVybiBTaGFyZWRQcmVmZXJlbmNlcy5FZGl0b3INCg0KLi4uLi4uDQoNCg0KTWFpbkFjdGl2aXR5IC0+IFNoYXJlZFByZWZlcmVuY2VzLkVkaXRvciArKyA6IGFwcGx5KCkNClNoYXJlZFByZWZlcmVuY2VzLkVkaXRvciAtPiBTaGFyZWRQcmVmZXJlbmNlc0ltcGwuRWRpdG9ySW1wbCArKyA6IGFwcGx5KCkNClNoYXJlZFByZWZlcmVuY2VzSW1wbC5FZGl0b3JJbXBsIC0+IFF1ZXVlZFdvcmsgOiBhZGQoUnVubmFibGUpDQpyZXR1cm4NCnJldHVybg0KcmV0dXJuDQpyZXR1cm4NCi4uLi4uLg0KDQo9PSBvblBhdXNlID09DQoNCkFNUyAtPiBBY3Rpdml0eVRocmVhZCArKyA6IG9uUGF1c2UoKQ0KQWN0aXZpdHlUaHJlYWQgLT4gTWFpbkFjdGl2aXR5IDogb25QYXVzZSgpDQpBY3Rpdml0eVRocmVhZCAtPiBRdWV1ZWRXb3JrIDogd2FpdFRvRmluaXNoKCkNCnJldHVybg0KQGVuZHVtbA0KClBsYW50VU1MIHZlcnNpb24gMS4yMDIwLjA3YmV0YTgoVW5rbm93biBjb21waWxlIHRpbWUpCihHUEwgc291cmNlIGRpc3RyaWJ1dGlvbikKSmF2YSBSdW50aW1lOiBKYXZhKFRNKSBTRSBSdW50aW1lIEVudmlyb25tZW50CkpWTTogSmF2YSBIb3RTcG90KFRNKSA2NC1CaXQgU2VydmVyIFZNCkphdmEgVmVyc2lvbjogMS43LjBfMjUtYjE1Ck9wZXJhdGluZyBTeXN0ZW06IExpbnV4CkRlZmF1bHQgRW5jb2Rpbmc6IFVURi04Ckxhbmd1YWdlOiBlbgpDb3VudHJ5OiBVUwotLT48L2c+PC9zdmc+">
+
+From the diagram above, we can see the [QueuedWork.waitToFinish()](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/core/java/android/app/QueuedWork.java#L154) is called in the `Activity.onPause()`, and the `waitToFinish()` is responsible for executing the `Runnable` that was previously added to the `QueuedWork` by `Editor.apply()` in the main thread synchronously, as shown in the following code:
+
+```java
+final class SharedPreferencesImpl implements SharedPreferences {
+
+    public final class EditorImpl implements Editor {
+
+       @Override
+        public void apply() {
+            final long startTime = System.currentTimeMillis();
+
+            final MemoryCommitResult mcr = commitToMemory();
+            final Runnable awaitCommit = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        /*👇👇👇👇 Where the ANR occurred 👇👇👇👇*/
+                        mcr.writtenToDiskLatch.await();
+                    } catch (InterruptedException ignored) {
+                    }
+
+                    if (DEBUG && mcr.wasWritten) {
+                        Log.d(TAG, mFile.getName() + ":" + mcr.memoryStateGeneration
+                                + " applied after " + (System.currentTimeMillis() - startTime)
+                                + " ms");
+                    }
+                }
+            };
+
+            /*👇👇👇👇 Enqueue an asynchronous runnable 👇👇👇👇*/
+            QueuedWork.addFinisher(awaitCommit);
+
+            Runnable postWriteRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        awaitCommit.run();
+                        QueuedWork.removeFinisher(awaitCommit);
+                    }
+                };
+
+            SharedPreferencesImpl.this.enqueueDiskWrite(mcr, postWriteRunnable);
+
+            // Okay to notify the listeners before it's hit disk
+            // because the listeners should always get the same
+            // SharedPreferences instance back, which has the
+            // changes reflected in memory.
+            notifyListeners(mcr);
+        }
+
+    }
+
+}
+```
+
+```java
+    /**
+     * Trigger queued work to be processed immediately. The queued work is processed on a separate
+     * thread asynchronous. While doing that run and process all finishers on this thread. The
+     * finishers can be implemented in a way to check weather the queued work is finished.
+     *
+     * Is called from the Activity base class's onPause(), after BroadcastReceiver's onReceive,
+     * after Service command handling, etc. (so async work is never lost)
+     */
+    public static void waitToFinish() {
+        long startTime = System.currentTimeMillis();
+        boolean hadMessages = false;
+
+        Handler handler = getHandler();
+
+        synchronized (sLock) {
+            if (handler.hasMessages(QueuedWorkHandler.MSG_RUN)) {
+                // Delayed work will be processed at processPendingWork() below
+                handler.removeMessages(QueuedWorkHandler.MSG_RUN);
+
+                if (DEBUG) {
+                    hadMessages = true;
+                    Log.d(LOG_TAG, "waiting");
+                }
+            }
+
+            // We should not delay any work as this might delay the finishers
+            sCanDelay = false;
+        }
+
+        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskWrites();
+        try {
+            processPendingWork();
+        } finally {
+            StrictMode.setThreadPolicy(oldPolicy);
+        }
+
+        try {
+            while (true) {
+                Runnable finisher;
+
+                synchronized (sLock) {
+                    finisher = sFinishers.poll();
+                }
+
+                if (finisher == null) {
+                    break;
+                }
+
+                /*👇👇👇👇👇 Executed synchronously in main thread 👇👇👇👇*/
+                finisher.run();
+            }
+        } finally {
+            sCanDelay = true;
+        }
+
+        synchronized (sLock) {
+            long waitTime = System.currentTimeMillis() - startTime;
+
+            if (waitTime > 0 || hadMessages) {
+                mWaitTimes.add(Long.valueOf(waitTime).intValue());
+                mNumWaits++;
+
+                if (DEBUG || mNumWaits % 1024 == 0 || waitTime > MAX_WAIT_TIME_MILLIS) {
+                    mWaitTimes.log(LOG_TAG, "waited: ");
+                }
+            }
+        }
+    }
+```
+
+## Invoke `commit()` asynchronouly
+
+The optimization for [SharedPreferences](https://developer.android.google.cn/reference/android/content/SharedPreferences) introduced in [booster v0.1.5](https://github.com/didi/booster/releases/tag/v0.1.5) is replacing the [Editor.apply()](https://developer.android.google.cn/reference/android/content/SharedPreferences.Editor.html#apply()) with [Editor.commit()](https://developer.android.google.cn/reference/android/content/SharedPreferences.Editor.html#commit()) and executing it in a worker thread, as shown in the following code:
+
+```java
+public class ShadowEditor {
+
+    public static void apply(final SharedPreferences.Editor editor) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            AsyncTask.SERIAL_EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    editor.commit();
+                }
+            });
+        } else {
+            editor.commit();
+        }
+    }
+
+}
+```
+
+The advantage of this solution is easy to implement with small changes, the disadvantage is obvious, in some cases, there may be a bug, for example, a `getXxx()` call followed the `commit()`, as showned in the following code:
+
+```java
+SharedPreferences sp = activity.getSharedPreferences(Context.MODE_PRIVATE);
+sp.edit().putString("key", "value").commit();
+String value = sp.getString("key");
+```
+::: warning
+Although the example above is not a best practice, executing `commit()` asynchronously probably cause a data inconsistency problem.
+:::
+
+## Custom SharedPreferences
+
+To solve the problems of `SharedPreferences` completely, the [BoosterSharedPreferences](https://github.com/didi/booster/blob/master/booster-android-instrument-shared-preferences/src/main/java/com/didiglobal/booster/instrument/sharedpreferences/BoosterSharedPreferences.java) has been introduced in [Booster v0.27.0](https://github.com/didi/booster/releases/tag/v0.27.0), all invocations of `Context.getSharedPreferences(String, int)` will be replaced with `ShadowSharedPreferences.getSharedPreferences(Context, String, int)` by [SharedPreferencesTransformer](https://github.com/didi/booster/blob/master/booster-transform-shared-preferences/src/main/kotlin/com/didiglobal/booster/transform/sharedpreferences/SharedPreferencesTransformer.kt), as shown in the following code:
+
+```java
+public class ShadowSharedPreferences {
+
+    public static SharedPreferences getSharedPreferences(
+        final Context context,
+        final String name,
+        final int mode
+    ) {
+        if (TextUtils.isEmpty(name)) {
+            name = "null";
+        }
+        return BoosterSharedPreferences.getSharedPreferences(name);
+    }
+
+    public static SharedPreferences getPreferences(
+        final Activity activity,
+        final int mode
+    ) {
+        return getSharedPreferences(
+            activity.getApplicationContext(),
+            activity.getLocalClassName(),
+            mode
+        );
+    }
+
+}
+```
+
+Then, it's able to avoid executing `QueuedWork` synchronously in lifecycle callbacks within main thread by using custom `SharedPreferences` implementation.
+
+## [MMKV](https://github.com/Tencent/MMKV) based SharedPreferences
+
+We have considered this solution, but finally gave up due to the following reasons:
+
+1. *MMKV* doesn't implement the [OnSharedPreferenceChangeListener](https://developer.android.com/reference/android/content/SharedPreferences.OnSharedPreferenceChangeListener)
+
+    ```java
+    public class MMKV implements SharedPreferences, SharedPreferences.Editor {
+
+        @Override
+        public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+            throw new java.lang.UnsupportedOperationException("Not implement in MMKV");
+        }
+
+        @Override
+        public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
+            throw new java.lang.UnsupportedOperationException("Not implement in MMKV");
+        }
+    }
+    ```
+
+1. *MMKV* doesn't verify the data type, so, the following code is considered legal:
+
+    ```java
+    mmkv.edit().putInt("a", 1).apply();
+    boolean result = mmkv.getBoolean("a", false);
+    // result is true
+    ```
+
+1. Inconsistent behavior problem, for example, the result of *MMKV* is different from the result of Android SDK:
+
+    ```java
+    editor.put("a", "abc").clear().apply();
+    ```
+
+So, considering the problems above, *Booster* hasn't provided an implementation based on *MMKV*, if you are interested in this solution, and the problems above are acceptable, you can have your own implementation, more details, please refer to [booster-transform-shared-preferences](https://github.com/didi/booster/blob/master/booster-transform-shared-preferences) and [booster-android-instrument-shared-preferences](https://github.com/didi/booster/blob/master/booster-android-instrument-shared-preferences).
+
