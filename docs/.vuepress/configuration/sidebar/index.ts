@@ -64,6 +64,8 @@ const getSidebar = (lang: string): SidebarConfig => {
           `/${lang}/developer/library-instrumentation`,
           `/${lang}/developer/using-class-transformer-in-task`,
           `/${lang}/developer/standalone-transformer`,
+          `/${lang}/developer/multi-round-transform`,
+          `/${lang}/developer/debug-gradle-plugin`,
         ],
       },
     ],
