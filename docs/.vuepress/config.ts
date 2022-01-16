@@ -109,6 +109,7 @@ export default defineUserConfig<DefaultThemeOptions>({
     ['@vuepress/medium-zoom', true],
     ['@vuepress/toc'],
     ['@vuepress/plugin-docsearch', {
+      appId: 'L2XS9SLXPH',
       apiKey: 'e1d2965c5919d6b9f28d54cc7cff0495',
       indexName: 'booster-johnsonlee',
       locales: {
