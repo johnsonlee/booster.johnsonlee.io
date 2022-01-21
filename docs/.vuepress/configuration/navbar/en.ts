@@ -6,7 +6,7 @@ export default {
     ['navbar.plugins'                                   ]: 'Plugins',
     ['navbar.faq'                                       ]: 'FAQ',
     ['navbar.contributors'                              ]: 'Contributors',
-    ['navbar.donate'                                    ]: 'By Me A Coffee',
+    ['navbar.donate'                                    ]: 'Buy Me A Coffee',
     ['navbar.reference.transformer'                     ]: 'Transformer',
     ['navbar.reference.variantprocessor'                ]: 'Variant Processor',
 }
