@@ -9,7 +9,7 @@
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.4.0'
+    ext.booster_version = '4.5.3'
 
     repositories {
         google()
@@ -27,7 +27,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = "4.4.0"
+    val booster_version = "4.5.3"
 
     repositories {
         google()
@@ -78,7 +78,7 @@ plugins {
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.4.0'
+    ext.booster_version = '4.5.3'
 
     repositories {
         google()
@@ -105,7 +105,7 @@ buildscript {
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.4.0'
+    ext.booster_version = '4.5.3'
     ext.debug = gradle.startParameter.taskNames.any {
         it.contains('debug') || it.contains('Debug')
     }
@@ -130,7 +130,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = '4.4.0'
+    val booster_version = '4.5.3'
     val debug = gradle.startParameter.taskNames.any {
         it.contains("debug", true)
     }
