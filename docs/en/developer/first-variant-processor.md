@@ -56,6 +56,7 @@ compileTestKotlin {
 }
 
 dependencies {
+    api gradleApi()
     /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0"
     api 'com.android.tools.build:gradle:$agp_version'
