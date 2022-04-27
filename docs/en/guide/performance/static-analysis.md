@@ -133,7 +133,7 @@ Putting the [booster-task-analyser](https://github.com/didi/booster/tree/master/
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.6.0'
+    ext.booster_version = '4.7.0'
 
     dependencies {
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
@@ -147,7 +147,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = '4.6.0'
+    val booster_version = '4.7.0'
 
     dependencies {
         classpath("com.didiglobal.booster:booster-gradle-plugin:$booster_version")

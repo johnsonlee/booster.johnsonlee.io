@@ -9,7 +9,7 @@ Configuring *booster-gradle-plugin* in the *build.gradle* of the *Android* root 
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.6.0'
+    ext.booster_version = '4.7.0'
 
     repositories {
         google()
@@ -27,7 +27,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = "4.6.0"
+    val booster_version = "4.7.0"
 
     repositories {
         google()
@@ -81,7 +81,7 @@ Configuring Booster plugins in the *build.gradle* under the Android root project
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.6.0'
+    ext.booster_version = '4.7.0'
 
     repositories {
         google()
@@ -100,7 +100,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = "4.6.0"
+    val booster_version = "4.7.0"
 
     repositories {
         google()
@@ -130,7 +130,7 @@ Booster provides many plugins, if you put all plugins into the classpath of Grad
 
 ```groovy
 buildscript {
-    ext.booster_version = '4.6.0'
+    ext.booster_version = '4.7.0'
     ext.debug = gradle.startParameter.taskNames.any {
         it.contains('debug') || it.contains('Debug')
     }
@@ -155,7 +155,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = "4.6.0"
+    val booster_version = "4.7.0"
     val debug = gradle.startParameter.taskNames.any {
         it.contains("debug", true)
     }
