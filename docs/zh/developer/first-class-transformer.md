@@ -127,9 +127,9 @@ Source package (default: BoosterDemo): io.johnsonlee.booster.demo
 ```groovy
 buildscript {
     ext {
-        agp_version = '4.0.0'
-        booster_version = '4.10.0'
-        kotlin_version = '1.3.31'
+        agp_version = "4.0.0"
+        booster_version = "4.11.0"
+        kotlin_version = "1.3.31"
     }
     repositories {
         mavenLocal()
@@ -264,9 +264,9 @@ class FirstClassTransformer : ClassTransformer {
 ```groovy
 buildscript {
     ext {
-        agp_version = '4.0.0'
-        booster_version = '4.10.0'
-        kotlin_version = '1.3.31'
+        agp_version = "4.0.0"
+        booster_version = "4.11.0"
+        kotlin_version = "1.3.31"
     }
     repositories {
         mavenLocal()

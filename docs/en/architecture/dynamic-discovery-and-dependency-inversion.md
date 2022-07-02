@@ -7,7 +7,7 @@
 ```groovy
 buildscript {
 
-    ext.booster_version = '4.10.0'
+    ext.booster_version = "4.11.0"
 
     dependencies {
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"

@@ -269,8 +269,8 @@ fun runAapt2(project: Project, aapt2: String, args: List<String>) {
 ```groovy
 buildscript {
     ext {
-        kotlin_version = '1.3.31'
-        booster_version = '4.10.0'
+        kotlin_version = "1.3.31"
+        booster_version = "4.11.0"
     }
     repositories {
         mavenLocal()

@@ -92,8 +92,8 @@ android {
 ```groovy
 buildscript {
     ext {
-        kotlin_version = '1.3.31'
-        booster_version = '4.10.0'
+        kotlin_version = "1.3.31"
+        booster_version = "4.11.0"
     }
     repositories {
         mavenLocal()
