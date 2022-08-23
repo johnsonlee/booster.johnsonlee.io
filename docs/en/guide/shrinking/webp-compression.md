@@ -97,6 +97,14 @@ android.precompileDependenciesResources=false
 ```
 :::
 
+::: warning
+*Android Gradle Plugin 7.0* 及以上版本，需要在 *gradle.properties* 中设置：
+
+```properties
+android.enableSourceSetPathsMap=false
+```
+:::
+
 # Custom Compression Quality
 
 [booster-task-compression-cwebp](https://github.com/didi/booster/tree/master/booster-task-compression-cwebp) 支持自定义的参数如下表所示：

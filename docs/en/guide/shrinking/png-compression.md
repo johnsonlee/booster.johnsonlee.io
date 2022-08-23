@@ -95,6 +95,14 @@ android.precompileDependenciesResources=false
 ```
 :::
 
+::: warning
+The following properties is required on *Android Gradle Plugin 7.0* and above:
+
+```properties
+android.enableSourceSetPathsMap=false
+```
+:::
+
 ## Customize Compression Quality
 
 The options supported by [booster-task-compression-pngquant](https://github.com/didi/booster/tree/master/booster-task-compression-pngquant) are listed as following:
