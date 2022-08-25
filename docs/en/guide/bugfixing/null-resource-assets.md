@@ -56,7 +56,7 @@ public class ResChecker {
 buildscript {
     ext {
         kotlin_version = "1.3.31"
-        booster_version = "4.12.0"
+        booster_version = "4.13.0"
     }
     repositories {
         mavenCentral()

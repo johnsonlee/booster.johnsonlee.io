@@ -21,7 +21,7 @@
 ```groovy
 allprojects { project ->
     buildscript {
-        ext.booster_version = "4.12.0"
+        ext.booster_version = "4.13.0"
         repositories {
             google()
             mavenCentral()
@@ -49,7 +49,7 @@ allprojects { project ->
 ```kotlin
 allprojects { project ->
     buildscript {
-        val booster_version = "4.12.0"
+        val booster_version = "4.13.0"
         repositories {
             google()
             mavenCentral()
