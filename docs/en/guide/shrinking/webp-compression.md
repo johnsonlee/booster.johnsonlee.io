@@ -26,8 +26,8 @@
 ```groovy
 buildscript {
     ext {
-        kotlin_version = "1.3.31"
-        booster_version = "4.13.0"
+        kotlin_version = "1.5.31"
+        booster_version = "4.15.0"
     }
     repositories {
         mavenLocal()
@@ -65,8 +65,8 @@ $ ./gradlew compressDebugResourcesWithCwebp --info
 ```groovy
 buildscript {
     ext {
-        kotlin_version = "1.3.31"
-        booster_version = "4.13.0"
+        kotlin_version = "1.5.31"
+        booster_version = "4.15.0"
     }
     repositories {
         mavenLocal()

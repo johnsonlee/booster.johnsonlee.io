@@ -128,8 +128,8 @@ Source package (default: BoosterDemo): io.johnsonlee.booster.demo
 buildscript {
     ext {
         agp_version = "4.0.0"
-        booster_version = "4.13.0"
-        kotlin_version = "1.3.31"
+        booster_version = "4.15.0"
+        kotlin_version = "1.5.31"
     }
     repositories {
         mavenLocal()
@@ -265,8 +265,8 @@ class FirstClassTransformer : ClassTransformer {
 buildscript {
     ext {
         agp_version = "4.0.0"
-        booster_version = "4.13.0"
-        kotlin_version = "1.3.31"
+        booster_version = "4.15.0"
+        kotlin_version = "1.5.31"
     }
     repositories {
         mavenLocal()
