@@ -39,7 +39,7 @@ When using [booster-task-compression-pngquant](https://github.com/didi/booster/b
 ```groovy
 buildscript {
     ext {
-        booster_version = "4.15.0"
+        booster_version = "4.16.2"
     }
     repositories {
         mavenCentral()
@@ -61,7 +61,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = "4.15.0"
+    val booster_version = "4.16.2"
 
     repositories {
         mavenCentral()

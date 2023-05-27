@@ -108,7 +108,7 @@ class ProcessedResourcesCompressionVariantProcessor : VariantProcessor {
 buildscript {
     ext {
         kotlin_version = "1.5.31"
-        booster_version = "4.15.0"
+        booster_version = "4.16.2"
     }
     repositories {
         mavenLocal()
