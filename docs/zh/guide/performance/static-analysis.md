@@ -123,7 +123,7 @@ Android 本身提供了 [Thread Annotations](https://developer.android.com/studi
 
 ```groovy
 buildscript {
-    ext.booster_version = "4.16.2"
+    ext.booster_version = "4.16.3"
 
     dependencies {
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
@@ -138,7 +138,7 @@ buildscript {
 
 ```kotlin
 buildscript {
-    val booster_version = "4.16.2"
+    val booster_version = "4.16.3"
 
     dependencies {
         classpath("com.didiglobal.booster:booster-gradle-plugin:$booster_version")
