@@ -1,0 +1,1 @@
+const e={key:"v-93c0e5d8",path:"/zh/architecture/",title:"",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[],filePathRelative:"zh/architecture/README.md",git:{createdTime:1721567138e3,updatedTime:1721567138e3,contributors:[{name:"johnsonlee",email:"g.johnsonlee@gmail.com",commits:1}]}};export{e as data};
