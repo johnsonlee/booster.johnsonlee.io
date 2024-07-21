@@ -1,4 +1,5 @@
 export default {
+    ['navbar.migration'                                 ]: 'Migrate to v5.x',
     ['navbar.guide'                                     ]: 'Guide',
     ['navbar.developer'                                 ]: 'Plugin Development',
     ['navbar.architecture'                              ]: 'Architecture',

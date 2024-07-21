@@ -1,4 +1,5 @@
 export default {
+    ['navbar.migration'                                 ]: '迁移到 v5.x',
     ['navbar.guide'                                     ]: '指南',
     ['navbar.developer'                                 ]: '插件开发',
     ['navbar.architecture'                              ]: '架构剖析',

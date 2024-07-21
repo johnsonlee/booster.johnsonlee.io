@@ -13,6 +13,10 @@ const getNavbar = (lang: string): NavbarConfig => {
 
   return [
     {
+      text: $('navbar.migration'),
+      link: `/${lang}/migration/`,
+    },
+    {
       text: $('navbar.guide'),
       link: `/${lang}/guide/`,
     },
