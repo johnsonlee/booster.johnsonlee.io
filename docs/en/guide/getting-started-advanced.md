@@ -24,7 +24,7 @@ Take the multi-threading optimizationas the example, creating a file called `ini
 ```groovy
 allprojects { project ->
     buildscript {
-        ext.booster_version = "4.16.3"
+        ext.booster_version = "5.0.0"
         repositories {
             google()
             mavenCentral()
@@ -52,7 +52,7 @@ allprojects { project ->
 ```kotlin
 allprojects { project ->
     buildscript {
-        val booster_version = "4.16.3"
+        val booster_version = "5.0.0"
         repositories {
             google()
             mavenCentral()
