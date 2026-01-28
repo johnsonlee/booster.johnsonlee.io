@@ -3,6 +3,7 @@ export default {
     ['navbar.guide'                                     ]: 'Guide',
     ['navbar.developer'                                 ]: 'Plugin Development',
     ['navbar.architecture'                              ]: 'Architecture',
+    ['navbar.jvm'                                       ]: 'JVM Internals',
     ['navbar.reference'                                 ]: 'Reference',
     ['navbar.plugins'                                   ]: 'Plugins',
     ['navbar.faq'                                       ]: 'FAQ',

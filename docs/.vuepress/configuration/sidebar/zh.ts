@@ -6,4 +6,5 @@ export default {
   ['sidebar.guide.misc'         ]: '其它',
   ['sidebar.developer'          ]: 'Booster 插件开发',
   ['sidebar.architecture'       ]: 'Booster 架构剖析',
+  ['sidebar.jvm'                ]: 'JVM 原理',
 }

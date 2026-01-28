@@ -82,6 +82,15 @@ const getSidebar = (lang: string): SidebarConfig => {
         ],
       },
     ],
+    [`/${lang}/jvm/`]: [
+      {
+        text: $('sidebar.jvm'),
+        children: [
+          `/${lang}/jvm/class-file`,
+          `/${lang}/jvm/instructions`,
+        ],
+      },
+    ],
   } as SidebarConfig
 }
 

@@ -6,4 +6,5 @@ export default {
   ['sidebar.guide.misc'         ]: 'Others',
   ['sidebar.developer'          ]: 'Booster Plugin Development',
   ['sidebar.architecture'       ]: 'Booster Architecture',
+  ['sidebar.jvm'                ]: 'JVM Internals',
 }

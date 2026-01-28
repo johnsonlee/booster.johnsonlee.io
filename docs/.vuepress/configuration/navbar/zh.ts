@@ -3,6 +3,7 @@ export default {
     ['navbar.guide'                                     ]: '指南',
     ['navbar.developer'                                 ]: '插件开发',
     ['navbar.architecture'                              ]: '架构剖析',
+    ['navbar.jvm'                                       ]: 'JVM 原理',
     ['navbar.reference'                                 ]: '参考文档',
     ['navbar.plugins'                                   ]: '插件',
     ['navbar.faq'                                       ]: '常见问题',

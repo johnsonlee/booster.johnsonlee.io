@@ -29,6 +29,10 @@ const getNavbar = (lang: string): NavbarConfig => {
       link: `/${lang}/architecture/`,
     },
     {
+      text: $('navbar.jvm'),
+      link: `/${lang}/jvm/`,
+    },
+    {
       text: $('navbar.faq'),
       link: `/${lang}/faq/`,
     },
