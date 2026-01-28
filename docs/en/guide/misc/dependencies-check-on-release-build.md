@@ -1,16 +1,16 @@
-# Release 构建依赖检查
+# Release Build Dependency Check
 
-*APP* 在日常的版本发布中，难免因为某些原因要回滚版本，尽管发布之前会在 *Git* 上打 *Tag*，回滚到原来的 *Tag* ，即使在同一台机器上，也未必能构建出跟原来一模一样的 *APK*，其中，影响回滚的很重要的一个原因是依赖的版本管理。为什么依赖的版本管理如此重要呢？这得从一个故事说起。
+In the daily release process of an *APP*, version rollbacks are sometimes necessary for various reasons. Although *Tags* are created on *Git* before release, rolling back to the original *Tag* doesn't guarantee building an *APK* identical to the original one, even on the same machine. One important factor affecting rollbacks is dependency version management. Why is dependency version management so important? Let's illustrate with a story.
 
-> 某 *APP* 在上一个版本 *v1.2.0* 中依赖了 *libsecurity* 库，版本号为 *1.0.0-SNAPSHOT*，接下来，*APP* 要发布 *v1.3.0*，在这个版本中，依赖了 *libsecurity* 库的 *1.0.1-SNAPSHOT* 版本，经过灰度发布后，未见明显异常，于是开始全量发布，结果，在放量的过程中，发现有个新增的崩溃陡增，经排查发现，是由于 *libsecurity* 库中的动态库导致，因此不得不将 *libsecurity* 库的版本回滚到上一个版本 —— *1.0.0-SNAPSHOT*，回滚后灰度依然未发现问题，接着开始全量，在全量的过程，又发现了跟之前一样的崩溃。
+> A certain *APP* in version *v1.2.0* depended on the *libsecurity* library with version *1.0.0-SNAPSHOT*. Subsequently, the *APP* was about to release *v1.3.0*, which depended on *libsecurity* library version *1.0.1-SNAPSHOT*. After gray release testing showed no obvious issues, full release began. However, during the rollout, a new crash was discovered that was increasing rapidly. Investigation revealed it was caused by a native library in *libsecurity*, so the *libsecurity* version had to be rolled back to the previous version - *1.0.0-SNAPSHOT*. After rollback, gray release still showed no issues, and full release began again. During full release, the same crash as before appeared again.
 
-故事到这儿，可能有人就会问了，上一个版本不是没问题么？为什么回滚版本了，在新版本中出现的崩溃为什么会出现在旧版本中？
+At this point, some might ask: wasn't the previous version working fine? Why would a crash that appeared in the new version appear in the old version after rolling back?
 
-经过排查发现，原来是 *libsecurity* 库的维护者将 *1.0.1-SNAPSHOT* 中的 *feature* 以 *1.0.0-SNAPSHOT* 的版本号发布到了 *Maven* 仓库中，导致原来的 *1.0.0-SNAPSHOT* 混入了新的代码，所以，即使回滚到了原来的版本，问题依然还存在。
+Investigation revealed that the *libsecurity* library maintainer had published the *features* from *1.0.1-SNAPSHOT* to the *Maven* repository using the *1.0.0-SNAPSHOT* version number, causing the original *1.0.0-SNAPSHOT* to contain new code. Therefore, even after rolling back to the original version, the problem persisted.
 
-## 解决方案
+## The Solution
 
-但平常的开发迭代中，如果 *Code Review* 不够仔细，就容易出现上面的情况，将 *SNAPSHOT* 版本带到线上，为了方便的解决这一问题，*Booster* 提供了 [booster-task-check-snapshot](https://github.com/didi/booster/blob/master/booster-task-check-snapshot) 模块，用于对 *Release* 构建的依赖库版本进行检查，避免依赖 *SNAPSHOT* 版本的库：
+In regular development iterations, if *Code Review* isn't thorough enough, situations like the above can easily occur where *SNAPSHOT* versions are released to production. To conveniently solve this problem, *Booster* provides the [booster-task-check-snapshot](https://github.com/didi/booster/blob/master/booster-task-check-snapshot) module for checking dependency library versions in *Release* builds to avoid depending on *SNAPSHOT* version libraries:
 
 ```kotlin
 internal open class CheckSnapshot : DefaultTask() {
@@ -25,7 +25,7 @@ internal open class CheckSnapshot : DefaultTask() {
             }.map {
                 it.id.componentIdentifier as MavenUniqueSnapshotComponentIdentifier
             }.ifNotEmpty { snapshots ->
-                println("$CSI_YELLOW ⚠️  ${snapshots.size} SNAPSHOT artifacts found in ${variant.name} variant:$CSI_RESET\n${snapshots.joinToString("\n") { snapshot -> "$CSI_YELLOW→  ${snapshot.displayName}$CSI_RESET" }}")
+                println("$CSI_YELLOW Warning: ${snapshots.size} SNAPSHOT artifacts found in ${variant.name} variant:$CSI_RESET\n${snapshots.joinToString("\n") { snapshot -> "$CSI_YELLOW->  ${snapshot.displayName}$CSI_RESET" }}")
             }
         }
     }
@@ -33,9 +33,9 @@ internal open class CheckSnapshot : DefaultTask() {
 }
 ```
 
-## 如何使用
+## Getting Started
 
-启用 *SNAPSHOT* 检查只需要在根工程的 *build.gradle* 中引入 [booster-task-check-snapshot](https://github.com/didi/booster/blob/master/booster-task-check-snapshot) 模块，如下所示：
+To enable *SNAPSHOT* checking, simply include the [booster-task-check-snapshot](https://github.com/didi/booster/blob/master/booster-task-check-snapshot) module in the root project's *build.gradle*, as shown below:
 
 ```groovy
 buildscript {
@@ -56,13 +56,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-task-check-snapshot:$booster_version"
     }
 }
 ```
 
-然后，在命令行中执行 `checkSnapshot` 任务：
+Then, execute the `checkSnapshot` task from the command line:
 
 ```bash
 $ ./gradlew checkSnapshot

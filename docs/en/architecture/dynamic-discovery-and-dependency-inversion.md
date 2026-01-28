@@ -1,8 +1,8 @@
-# 动态发现与依赖反转
+# Dynamic Discovery and Dependency Inversion
 
-## 动态发现
+## Dynamic Discovery
 
-为了让各个特性模块保持高度的独立性和开发的便利性，*Booster* 采用了动态发现的方式来加载各个特性模块，只需要在 *classpath* 中引入相应的模块即可，如下所示：
+To keep each feature module highly independent and convenient for development, *Booster* adopts a dynamic discovery approach to load various feature modules. You only need to include the corresponding module in the *classpath*, as shown below:
 
 ```groovy
 buildscript {
@@ -25,9 +25,9 @@ buildscript {
 }
 ```
 
-## 依赖反转
+## Dependency Inversion
 
-要在运行时动态的发现和加载第三方的类，比较典型的解决方案是采用依赖注入的方式来实现，目前比较流行的依赖注入框架有：
+To dynamically discover and load third-party classes at runtime, a typical solution is to use dependency injection. Currently popular dependency injection frameworks include:
 
 1. [Spring Framework](https://spring.io/projects/spring-framework)
 1. [Google Guice](https://github.com/google/guice)
@@ -35,9 +35,9 @@ buildscript {
 
 ## Service Provider Interface
 
-除此之外，*JDK* 从 *1.6* 开始，便提供了 [SPI (Service Provider Interface)](https://docs.oracle.com/javase/tutorial/sound/SPI-intro.html) 的机制，来解决在 *JDK* 中调用第三方 *Library* 的问题，在 *JDK* 中，比较常见的 *SPI* 调用有：
+In addition, since *JDK 1.6*, the JDK has provided the [SPI (Service Provider Interface)](https://docs.oracle.com/javase/tutorial/sound/SPI-intro.html) mechanism to solve the problem of calling third-party libraries in the JDK. Common *SPI* usages in the JDK include:
 
-1. *JDBC* 驱动的加载，详见：`java.sql.DriverManager`
+1. *JDBC* driver loading, see: `java.sql.DriverManager`
 
     ```java
     private static void loadInitialDrivers() {
@@ -104,7 +104,7 @@ buildscript {
     }
     ```
 
-1. 打印服务查找，详见：`javax.print.PrintServiceLookup`
+1. Print service lookup, see: `javax.print.PrintServiceLookup`
 
     ```java
     private static ArrayList getAllLookupServices() {
@@ -146,7 +146,7 @@ buildscript {
     }
     ```
 
-1. 基于事件驱动的 *XML* 解析，详见：`javax.xml.parsers.FactoryFinder`
+1. Event-driven *XML* parsing, see: `javax.xml.parsers.FactoryFinder`
 
     ```java
     /*
@@ -186,9 +186,9 @@ buildscript {
     }
     ```
 
-由于 *SPI* 简单易用，而且无需依赖额外的类库，所以，*Booster* 选择了通过 *SPI* 的方式，来实现功能模块的动态发现与加载。
+Since *SPI* is simple to use and does not require additional libraries, *Booster* chose to implement dynamic discovery and loading of feature modules through *SPI*.
 
-从上面的例子，我们可以发现，它们都是通过 `java.util.ServiceLoader` 来完成 *SPI* 实现类的动态加载，那 `ServiceLoader` 究竟是如何做到的呢？让我们来看看 `ServiceLoader` 的源代码：
+From the examples above, we can see that they all use `java.util.ServiceLoader` to dynamically load *SPI* implementation classes. So how exactly does `ServiceLoader` achieve this? Let's look at the source code of `ServiceLoader`:
 
 ```java
 public final class ServiceLoader<S>
@@ -307,13 +307,13 @@ public final class ServiceLoader<S>
 }
 ```
 
-从上面的代码，我们可以发现，`ServiceLoader` 实现动态加载的关键在于 `ServiceLoader$LazyIterator`，它通过 `ClassLoader` 从 *classpath* 中查找名称为 `META-INF/services/${InterfaceName}` 的 *SPI* 配置资源，并从中逐行读取接口对应的实现类的类名，然后通过反射来实例化该接口的实现类。
+From the code above, we can see that the key to `ServiceLoader`'s dynamic loading is `ServiceLoader$LazyIterator`. It uses `ClassLoader` to find *SPI* configuration resources named `META-INF/services/${InterfaceName}` from the *classpath*, reads the class names of the interface implementations line by line, and then instantiates the interface implementation classes through reflection.
 
-基于这一原理，只要 *SPI* 配置存在于 *classpath* 中，就能在运行时被 `ServiceLoader` 查找到，这也是为什么使用 *Booster* 模块只需要在 *buildscript* 的 *dependencies* 中加上一行 `classpath` 就可以自动启用该特性的原因。
+Based on this principle, as long as the *SPI* configuration exists in the *classpath*, it can be found by `ServiceLoader` at runtime. This is why using *Booster* modules only requires adding a `classpath` line to the *dependencies* in *buildscript* to automatically enable that feature.
 
 ## Google AutoService
 
-通过 `ServiceLoader$LazyIterator` 我们了解到，要通过 `ServiceLoader` 来查找 *SPI* 实现类，必须在 `META-INF/services/` 中对相应的接口进行配置，如果 *SPI* 接口比较多的话，配置起来就会比较繁琐，而且手动配置还容易出错，为了解决这一问题，*Google* 提供了根据 *Annotation* 自动生成 *SPI* 配置的工具 —— [AutoService](https://github.com/google/auto/tree/master/service)，只需要在 *SPI* 接口的实现类上加上 `@AutoService(InterfaceName.class)`，如下所示：
+Through `ServiceLoader$LazyIterator`, we learned that to find *SPI* implementation classes through `ServiceLoader`, you must configure the corresponding interface in `META-INF/services/`. If there are many *SPI* interfaces, configuration becomes tedious, and manual configuration is error-prone. To solve this problem, *Google* provides a tool that automatically generates *SPI* configurations based on *Annotations* — [AutoService](https://github.com/google/auto/tree/master/service). You only need to add `@AutoService(InterfaceName.class)` to the implementation class of the *SPI* interface, as shown below:
 
 ```kotlin
 @AutoService(ClassTransformer::class)
@@ -324,9 +324,9 @@ class MyTransformer : ClassTransformer {
 }
 ```
 
-然后在 `build.gradle` 配置 `annotationProcessor`。
+Then configure `annotationProcessor` in `build.gradle`.
 
-### Java 版
+### Java Version
 
 ```groovy
 dependencies {
@@ -336,7 +336,7 @@ dependencies {
 }
 ```
 
-### Kotlin 版
+### Kotlin Version
 
 ```groovy
 dependencies {
@@ -347,4 +347,4 @@ dependencies {
 ```
 
 
-关于更完整的示例代码，请参见：[第一个 Transformer](../developer/first-class-transformer.md)。
+For more complete example code, please refer to: [Your First Transformer](../developer/first-class-transformer.md).

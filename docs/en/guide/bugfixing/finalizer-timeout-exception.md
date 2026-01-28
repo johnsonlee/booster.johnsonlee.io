@@ -2,7 +2,7 @@
 
 ## The Problem of Finalizer
 
-相信很多 *Android* 开发者都见过像这样的 *TimeoutException* : 
+Many *Android* developers have encountered *TimeoutException* like this:
 
 ```
 java.util.concurrent.TimeoutException: android.content.res.AssetManager.finalize() timed out after 10 seconds
@@ -13,7 +13,7 @@ java.util.concurrent.TimeoutException: android.content.res.AssetManager.finalize
   at java.lang.Thread.run(Thread.java:856)
 ```
 
-通过查看 *AOSP* 源码，我们很容易就能定位到异常发生在 *Daemons$FinalizerWatchdogDaemon.finalizerTimedOut* :
+By examining the *AOSP* source code, we can easily locate the exception occurring at *Daemons$FinalizerWatchdogDaemon.finalizerTimedOut*:
 
 ```java
 private static void finalizerTimedOut(Object object) {
@@ -57,7 +57,7 @@ private static void finalizerTimedOut(Object object) {
 }
 ```
 
-从源码里，我们可以看到 *finalizerTimedOut* 会抛出 *UncaughtException*，那为什么会调到这儿呢？让我们继续看源码：
+From the source code, we can see that *finalizerTimedOut* throws an *UncaughtException*. But why does it get called? Let's continue examining the source code:
 
 ```java
 @Override public void runInternal() {
@@ -75,7 +75,7 @@ private static void finalizerTimedOut(Object object) {
 }
 ```
 
-原来，*FinalizerWatchdogDaemon* 会异步等待 *Finalization* 结束：
+As it turns out, *FinalizerWatchdogDaemon* asynchronously waits for *Finalization* to complete:
 
 ```java
 private Object waitForFinalization() {
@@ -119,11 +119,11 @@ private Object waitForFinalization() {
 }
 ```
 
-看到这里，我想大家已经弄明白，为什么会抛出 *TimeoutException* 了，这是因为 *FinalizerWatchdogDaemon* 会等待 *FinalizerDaemon.doFinalize()* 的结果，如果在 *MAX_FINALIZE_NANOS* 时间之内没有完成，就会抛出 *TimeoutException*。
+At this point, you should understand why *TimeoutException* is thrown. This is because *FinalizerWatchdogDaemon* waits for the result of *FinalizerDaemon.doFinalize()*, and if it doesn't complete within *MAX_FINALIZE_NANOS* time, a *TimeoutException* is thrown.
 
 ## The Root Cause
 
-从源码中我们可以看到，*Daemons* 启了 *4* 个 *Daemon* 线程：
+From the source code, we can see that *Daemons* starts *4* *Daemon* threads:
 
 ```java
 public final class Daemons {
@@ -146,23 +146,23 @@ public final class Daemons {
 
 ### HeapTaskDaemon
 
-*HeapTaskDaemon* 用来启动用于处理 *GC* 相关的任务，如：*Heap Trimming*, *Heap Transition* 以及 *Concurrent GC*，详见：[task_processor.h](https://android.googlesource.com/platform/art/+/master/runtime/gc/task_processor.h)
+*HeapTaskDaemon* is used to handle *GC* related tasks, such as: *Heap Trimming*, *Heap Transition*, and *Concurrent GC*. See: [task_processor.h](https://android.googlesource.com/platform/art/+/master/runtime/gc/task_processor.h)
 
 ### ReferenceQueueDaemon
 
-*ReferenceQueueDaemon* 负责将 *FinalizerReference* （重写了 *finalize()* 方法的类在实例化的时候，会被 *FinalizerReference* 引用，当该实例具有且仅有 *FinalizerReference* 引用它时，则认为该对象适合被 *GC* 回收）入队到 *ReferenceQueue* 中
+*ReferenceQueueDaemon* is responsible for enqueueing *FinalizerReference* (classes that override the *finalize()* method are referenced by *FinalizerReference* when instantiated; when an instance has only *FinalizerReference* referencing it, the object is considered eligible for *GC*) into the *ReferenceQueue*
 
 ### FinalizerDaemon
 
-*FinalizerDaemon* 负责在 *GC* 被触发时，执行被 *FinalizerReference* 引用的对象的 *finalize* 方法
+*FinalizerDaemon* is responsible for executing the *finalize* method of objects referenced by *FinalizerReference* when *GC* is triggered
 
 ### FinalizerWatchdogDaemon
 
-*FinalizerWatchdogDaemon* 顾名思义，它就是 *Finalizer* 的「看门狗」，一旦在规定的时间之内，没有给它「喂骨头」，则认为 *Finalizer* 过程被阻塞了，它就会抛异常了，而 *FinalizerDaemon* 就是给它「喂骨头」的线程。
+*FinalizerWatchdogDaemon*, as the name suggests, is the "watchdog" for *Finalizer*. If it doesn't receive a "signal" within the specified time, it considers the *Finalizer* process blocked and throws an exception. *FinalizerDaemon* is the thread that sends this "signal".
 
 ## How To Solve It?
 
-了解了 *4* 个 *Daemon* 线程的作用，那这个问题就好办了，有人提出把超时时间 *MAX_FINALIZE_NANOS* 设置长一些不就行了？比如：*Integer.MAX_VALUE*，看起来貌似这是最简单的办法，真的可行吗？让我们来看看源码：
+Now that we understand the role of the *4* *Daemon* threads, the solution becomes clear. Some suggest simply increasing the timeout value *MAX_FINALIZE_NANOS*, for example to *Integer.MAX_VALUE*. This seems like the simplest approach, but is it feasible? Let's look at the source code:
 
 ```java
 public final class Daemons {
@@ -178,9 +178,9 @@ public final class Daemons {
 
 ```
 
-从源码中，我们可以看到 *MAX_FINALIZE_NANOS* 是一个常量值，根据我们对 *JVM* 规范的了解，常量是一个立即数，已经被编码进指令中，即使运行时修改它，也不会有任何作用。
+From the source code, we can see that *MAX_FINALIZE_NANOS* is a constant value. Based on our understanding of the *JVM* specification, a constant is an immediate value that has been encoded into the instruction. Even if modified at runtime, it will have no effect.
 
-*Booster* 的解决方案是解决抛出异常的「看门狗」—— 在应用启动后，停掉 *FinalizerWatchdogDaemon* 线程，这样做对于 *APP* 来说，并没有什么实质性的影响：
+*Booster*'s solution is to deal with the exception-throwing "watchdog" - stop the *FinalizerWatchdogDaemon* thread after the application starts. This has no substantial impact on the *APP*:
 
 ```java
 public static void kill() {
@@ -232,7 +232,7 @@ public static void kill() {
 
 ## Getting Started
 
-修复 `FinalizerDaemon` 导致的 *TimeoutException* 只需要引入 [booster-transform-finalizer-watchdog-daemon](https://github.com/didi/booster/blob/master/booster-transform-finalizer-watchdog-daemon) 即可，如下所示：
+To fix the *TimeoutException* caused by `FinalizerDaemon`, simply include [booster-transform-finalizer-watchdog-daemon](https://github.com/didi/booster/blob/master/booster-transform-finalizer-watchdog-daemon), as shown below:
 
 
 ```groovy
@@ -250,7 +250,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-transform-finalizer-watchdog-daemon:$booster_version"
     }
 }

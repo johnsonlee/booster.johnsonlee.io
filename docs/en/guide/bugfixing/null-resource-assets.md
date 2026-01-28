@@ -1,6 +1,6 @@
 # Null Resources or Assets
 
-相信很多 *Android* 开发者都遇到像这样的崩溃：
+Many *Android* developers have encountered crashes like this:
 
 ```
 java.lang.NullPointerException: Attempt to invoke virtual method 'android.content.res.AssetManager android.content.res.Resources.getAssets()' on a null object reference
@@ -21,16 +21,16 @@ java.lang.NullPointerException: Attempt to invoke virtual method 'android.conten
 
 ## The Root Cause
 
-这种问题基本上都是发生在覆盖安装之后，*App* 由 *Broadcast* 唤起，由于系统 bug 导致加载了旧的 *APK*，一般表现出来的异常有：
+This issue typically occurs after an overlay installation when the *App* is launched by a *Broadcast*. Due to a system bug, the old *APK* is loaded. Common manifestations of this issue include:
 
-- *Context.getResources()* 返回 `null`
-- *Class.getResourceAsStream()* 返回 `null`
-- *Context.getAssets()* 抛出 `NullPointerException`
-- *Context.getSystemService(Context.AUDIO_SERVICE)* 抛出 `NullPointerException`
+- *Context.getResources()* returns `null`
+- *Class.getResourceAsStream()* returns `null`
+- *Context.getAssets()* throws `NullPointerException`
+- *Context.getSystemService(Context.AUDIO_SERVICE)* throws `NullPointerException`
 
 ## How To Solve It?
 
-像这样的系统 bug，可能跟系统版本有关，也没有什么通用的解决方案，所以 *Booster* 的解决思路是，在 *Application* 启动的时候，对 *Resources* 和 *Assets* 进行检查，如果 `Resources` 或者 `AssetManager` 为 `null`，直接杀进程：
+For system bugs like this, which may be related to specific system versions, there's no universal solution. Therefore, *Booster*'s approach is to check *Resources* and *Assets* when the *Application* starts. If `Resources` or `AssetManager` is `null`, the process is killed directly:
 
 ```java
 public class ResChecker {
@@ -49,7 +49,7 @@ public class ResChecker {
 
 ## Getting Started
 
-修复覆盖安装导致的 `NullPointerException` 只需要引入 [booster-transform-res-check](https://github.com/didi/booster/blob/master/booster-transform-res-check) 即可，如下所示：
+To fix the `NullPointerException` caused by overlay installation, simply include [booster-transform-res-check](https://github.com/didi/booster/blob/master/booster-transform-res-check), as shown below:
 
 
 ```groovy
@@ -67,7 +67,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-transform-res-check:$booster_version"
     }
 }

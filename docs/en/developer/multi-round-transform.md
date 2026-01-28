@@ -1,14 +1,14 @@
 # Multi-Round Transform
 
-在 *Booster* 中，`Transformer` 是基于单轮 *transform* 的 *pipeline* 而设计的，但有一些特殊情况下，需要先从字节码中收集到完整的信息后，才能进行 *transform*，而这样的需求通过 `Transformer` 是不太容易实现的，为了支持在 *transform* 之前收集更多的信息，*Booster* 提供了 [Collector API](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Collector.kt#L7) 和 [Supervisor API](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Collector.kt#L23)，让开发者可以很方便的实现该需求。
+In *Booster*, `Transformer` is designed based on a single-round *transform* *pipeline*. However, in some special cases, complete information needs to be collected from bytecode before *transform* can proceed. Such requirements are not easy to implement through `Transformer`. To support collecting more information before *transform*, *Booster* provides the [Collector API](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Collector.kt#L7) and [Supervisor API](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Collector.kt#L23), allowing developers to easily implement this requirement.
 
 ## What is `Collector`?
 
-`Collector` 是在功能上对 `Transformer` 单向管道的补充，用于从 transform pipeline 中收集信息，同时也决定着 pipeline 的输入是否需要更新。
+`Collector` is a functional complement to the unidirectional pipeline of `Transformer`, used to collect information from the transform pipeline, and also determines whether the pipeline input needs to be updated.
 
 ## What is `Supervisor`?
 
-`Supervisor` 是一种特殊的 `Collector`，它只是观察 transform pipeline ，并收集信息，但不会影响 pipeline 输入的更新。
+`Supervisor` is a special type of `Collector` that only observes the transform pipeline and collects information, but does not affect the update of pipeline input.
 
 ## Provided `Collector`
 
@@ -47,7 +47,7 @@ class MyTransformer : ClassTransformer {
 
 ## Force Update Transform Inputs
 
-下面的例子中，通过 `NameCollector` 来表示要关注 transform pipeline 中包含有 `io/johnsonlee/framework/ServiceRegistry.class` 的输入，如果匹配到对应的输入，就会在每次 transform 的时候更行强制更新，无论是否是增量构建，代码如下所示：
+In the example below, `NameCollector` is used to indicate that we are interested in inputs in the transform pipeline that contain `io/johnsonlee/framework/ServiceRegistry.class`. If a matching input is found, it will be force-updated during each transform, regardless of whether it's an incremental build. The code is as follows:
 
 ```kotlin
 @AutoService(ClassTransformer::class)
@@ -75,7 +75,7 @@ class ServiceRegistryTransformer : ClassTransformer {
 
 ## Custom Collector/Supervisor
 
-开发者只根据自己的需要实现 [Collector](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Collector.kt#L7) 接口：
+Developers can implement the [Collector](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Collector.kt#L7) interface according to their needs:
 
 ```kotlin
 class MyCollector : Collector<String> {
@@ -91,7 +91,7 @@ class MyCollector : Collector<String> {
 }
 ```
 
-然后，在 `onPreTransform` 方法中进行注册：
+Then, register it in the `onPreTransform` method:
 
 ```kotlin
 override fun onPreTransform(context: TransformContext) {

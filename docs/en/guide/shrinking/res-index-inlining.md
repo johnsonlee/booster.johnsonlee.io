@@ -2,17 +2,17 @@
 
 ## The Problem of Resource Index
 
-*Android* 在构建的过程中，会为每个模块（库、应用）生成一份资源索引，诸如：*R$id.class*，*R$layout.class* 等等，这对于开发者来说，在代码里引用资源十分的方便。
+During the *Android* build process, a resource index is generated for each module (library, application), such as: *R$id.class*, *R$layout.class*, etc. This makes it very convenient for developers to reference resources in code.
 
-对于 *library* 模块来说，*R* 文件中的索引值并非常量值，以至于 *library* 的类中引用 *R* 索引值的方式其实是调用 *R* 类的 *field* 来实现的，这也是为什么在 *library* 工程中不能在 *switch-case* 语句或者 *Annotatio* 中使用资源索引的原因。以至于 *ButterKnife* 创造了独有的 *R2* 来解决这个问题。
+For *library* modules, the index values in the *R* file are not constant values. This means that referencing *R* index values in *library* classes is actually done by accessing *R* class *fields*. This is why you cannot use resource indices in *switch-case* statements or *Annotations* in *library* projects. This is why *ButterKnife* created its own *R2* to solve this problem.
 
-*Android* 系统中定义了 *10* 多种资源类型，假设每个模块使用了 *5* 种资源类型，就会生成 *6* 个对应的 *class* 文件（包括 *R.class*），由于工程结构的复杂度普遍上升，在 *APP* 工程中直接或间接引用的 *library* 少则几十，多则上百，假设 *APP* 中引用了 *100* 个 *library*，那对应的 *R* 文件至少是 *500* 个以上，无论是类数量、字段数量都是巨大的浪费，毕竟单个 *dex* 有 *65535* 的限制，虽然有 *multi-dex* 技术，但多一个 *dex* 就会为安装、冷启动增加不必要的性能开销。
+The *Android* system defines over *10* resource types. Assuming each module uses *5* resource types, *6* corresponding *class* files will be generated (including *R.class*). Due to the generally increasing complexity of project structures, an *APP* project directly or indirectly references anywhere from dozens to hundreds of *libraries*. Assuming an *APP* references *100* *libraries*, the corresponding *R* files would number at least *500* or more. Both the class count and field count represent significant waste. After all, a single *dex* has a limit of *65535*. Although there's *multi-dex* technology, each additional *dex* adds unnecessary performance overhead to installation and cold startup.
 
 ## Unnecessary R Removal
 
-对于 *Android* 工程来说，通常，*library* 的 *R* 只是 *application* 的 *R* 的一个子集，所以，只要有了全集，子集是可以通通删掉的，而且，*application* 的 *R* 中的常量字段，一旦参与编译后，就再也没有利用价值（反射除外）。在 *R* 的字段，*styleable* 字段是一个例外，它不是常量，它是 `int[]`。所以，删除 *R* 之前，我们要弄清楚要确定哪些是能删的，哪些是不能删的，根据经验来看，不能删的索引有：
+For *Android* projects, typically the *library*'s *R* is just a subset of the *application*'s *R*. Therefore, as long as we have the complete set, the subsets can all be deleted. Moreover, the constant fields in the *application*'s *R* have no further value once they've been compiled (except for reflection). Among *R* fields, *styleable* fields are an exception - they are not constants but `int[]`. So before deleting *R*, we need to determine which can be deleted and which cannot. Based on experience, indices that cannot be deleted include:
 
-1. *ConstraintLayout* 中引用的字段，例如：
+1. Fields referenced in *ConstraintLayout*, for example:
 
     ```xml
     <android.support.constraint.Group
@@ -23,9 +23,9 @@
         app:constraint_referenced_ids="button4,button9" />
     ```
 
-    其中，`R.id.button4` 和 `R.id.button9` 是必须要保留的，因为 *ContraintLayout* 会调用 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 来获取 `button4` 和 `button9` 的 *id* 索引。
+    Here, `R.id.button4` and `R.id.button9` must be retained because *ConstraintLayout* calls <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> to get the *id* indices for `button4` and `button9`.
 
-    总结下来，在 *ConstraintLayout* 中引用其它 *id* 的属性如下：
+    In summary, attributes in *ConstraintLayout* that reference other *ids* include:
     - `constraint_referenced_ids`
     - `layout_constraintLeft_toLeftOf`
     - `layout_constraintLeft_toRightOf`
@@ -40,33 +40,33 @@
     - `layout_constraintStart_toStartOf`
     - `layout_constraintEnd_toStartOf`
     - `layout_constraintEnd_toEndOf`
-    因此，*Booster* 采用了解析 *xml* 的方式，从 *xml* 中提取以上属性。
+    Therefore, *Booster* parses *xml* files to extract these attributes.
 
-1. 其它通过 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 或 <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a> 来获取索引值的资源
+1. Other resources that obtain index values through <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> or <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a>
 
-    针对这种情况，需要对字节码进行全盘扫描才能确定哪些地方调用了 <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> 或 <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a>，考虑到增加一次 *Transform* 带来的性能损耗，*Booster* 提供了通过配置白名单的方式来保留这些资源索引。
+    For these cases, a full bytecode scan is required to determine which places call <a href="https://developer.android.com/reference/android/content/res/TypedArray#getResourceId(int,%20int)">TypedArray.getResourceId(int, int)</a> or <a href="https://developer.android.com/reference/android/content/res/Resources#getIdentifier(java.lang.String,%20java.lang.String,%20java.lang.String)">Resources.getIdentifier(String, String, String)</a>. Considering the performance cost of adding another *Transform*, *Booster* provides a whitelist configuration approach to retain these resource indices.
 
 ## Unnecessary *Field* Removal
 
-由于 *Android* 的资源索引只有 *32* 位整型，格式为：`PP` `TT` `NNNN`，其中：
+Since *Android* resource indices are only *32*-bit integers with the format: `PP` `TT` `NNNN`, where:
 
-  - `PP` 为 *Package ID*，默认为 `0x7f`；
-  - `TT` 为 *Resource Type ID*，从 `1` 开始依次递增；
-  - `NNNN` 为 *Name ID*，从 `1` 开始依次递增；
+  - `PP` is the *Package ID*, default is `0x7f`;
+  - `TT` is the *Resource Type ID*, incrementing from `1`;
+  - `NNNN` is the *Name ID*, incrementing from `1`;
 
-为了节省空间，在构建 *application* 时，所有同类型的资源索引会重排，所以，*library* 工程在构建期间无法确定资源最终的索引值，这就是为什么 *library* 工程中的资源索引是变量而非常量，既然在 *application* 工程中可以确定每个资源最终的索引值了，为什么不将 *library* 中的资源索引也替换为常量呢？这样就可以删掉多余的 *field* 了，在一定程度上可以减少 *dex* 的数量，收益是相当的可观。
+To save space, when building an *application*, all resource indices of the same type are re-indexed. Therefore, *library* projects cannot determine the final resource index values during build time. This is why resource indices in *library* projects are variables rather than constants. Since the final index value for each resource can be determined in the *application* project, why not replace the resource indices in *libraries* with constants as well? This way, the redundant *fields* can be deleted, which can reduce the number of *dex* files to some extent. The benefits are quite considerable.
 
-在编译期间获取索引常量值有很多种方法：
+There are several ways to obtain constant index values during compilation:
 
-1. 反射 *R* 类文件
-1. 解析 *R* 类文件
-1. 解析 *Symbol List (R.txt)*
+1. Reflect the *R* class file
+1. Parse the *R* class file
+1. Parse the *Symbol List (R.txt)*
 
-经过 *benchmark* 测试发现，解析 *Symbol List* 的方案性能最优，因此，在 *Transform* 之前拿到所有资源名称与索引值的映射关系，然后在 *Transform* 的过程中将 [getfield](../jvm/instructions.html#getfield) 指令替换成 [ldc](../jvm/instructions.html#ldc) 指令即可。
+Through *benchmark* testing, parsing the *Symbol List* approach was found to have the best performance. Therefore, obtain the mapping relationship between all resource names and index values before *Transform*, then replace the [getfield](../jvm/instructions.html#getfield) instruction with the [ldc](../jvm/instructions.html#ldc) instruction during the *Transform* process.
 
 ## Getting Started
 
-开启资源索引内联只需要引入 [booster-transform-r-inline](https://github.com/didi/booster/blob/master/booster-transform-r-inline) 即可，如下所示：
+To enable resource index inlining, simply include [booster-transform-r-inline](https://github.com/didi/booster/blob/master/booster-transform-r-inline), as shown below:
 
 
 ```groovy
@@ -88,19 +88,19 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-transform-r-inline:$booster_version"
     }
 }
 ```
 
-## Ingoring Specified Resources
+## Ignoring Specified Resources
 
-[booster-transform-r-inline](https://github.com/didi/booster/blob/master/booster-transform-r-inline) 支持通过属性的方式来忽略指定的资源。
+[booster-transform-r-inline](https://github.com/didi/booster/blob/master/booster-transform-r-inline) supports ignoring specified resources through properties.
 
-| 属性                                 | 说明                                    |
-|:-------------------------------------|-----------------------------------------|
-| `booster.transform.r.inline.ignores` | 忽略的资源限定符（逗号分隔，支持通配符）|
+| Property                             | Description                                              |
+|:-------------------------------------|----------------------------------------------------------|
+| `booster.transform.r.inline.ignores` | Resource qualifiers to ignore (comma-separated, supports wildcards) |
 
 ### Configuring by *gradle.properties*
 

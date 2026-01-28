@@ -1,6 +1,6 @@
 # Standalone Transformer
 
-在平常的开发过程中，我们可能需要脱离 *Gradle* 环境，对某些个 *JAR*、 *class* 文件或者是 *Android Transform Pipeline* 的产物进行扫描来得到一些结果，鉴于此，*Booster* 提供了一系列实用工具类和扩展方法，来帮助开发者提升效率：
+In daily development, we may need to scan certain *JAR* files, *class* files, or artifacts from the *Android Transform Pipeline* outside of the *Gradle* environment to obtain some results. For this purpose, *Booster* provides a series of utility classes and extension methods to help developers improve efficiency:
 
 - [booster-transform-util](https://github.com/didi/booster/tree/master/booster-transform-util)
 
@@ -18,7 +18,7 @@
 
 ## Runtime Instrumentation
 
-一般在 *Java* 环境中，可能会需要在运行时修改某些特定的 *Class* ，我们可以通过 `Transformer` 很容易的实现。
+In a *Java* environment, you might need to modify certain *Class* at runtime. We can easily implement this using `Transformer`.
 
 ### Custom ClassLoader
 
@@ -90,7 +90,7 @@ Class.forName("io.johnsonlee.booster.SimpleClass", tcl)
 
 ## Analysing Intermediate Artifacts
 
-通过 [TransformHelper](https://github.com/didi/booster/blob/master/booster-transform-util/src/main/kotlin/com/didiglobal/booster/transform/util/TransformHelper.kt)，我们就可以很方便对 *Android Transform Pipeline* 的产物进行扫描：
+Using [TransformHelper](https://github.com/didi/booster/blob/master/booster-transform-util/src/main/kotlin/com/didiglobal/booster/transform/util/TransformHelper.kt), we can easily scan the artifacts of the *Android Transform Pipeline*:
 
 ```kotlin
 val variant = "debug"
@@ -107,7 +107,7 @@ TransformHelper(input).transform(output, AsmTransformer(object : ClassTransforme
 
 ## Analysing JAR File
 
-通过上面提供的扩展方法，我们可以很方便的扫描 *JAR* 文件中的 *class*：
+Using the extension methods provided above, we can easily scan *class* files in a *JAR* file:
 
 ```kotlin
 File("some.jar").transform(File("out")) { bytecode ->
@@ -117,7 +117,7 @@ File("some.jar").transform(File("out")) { bytecode ->
 }
 ```
 
-或者
+Or
 
 ```kotlin
 JarFile("some.jar").use { jar ->

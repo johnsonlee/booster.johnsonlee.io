@@ -2,13 +2,13 @@
 
 ## Create Project
 
-在写第一个 *ClassTransformer* 之前，需要有一个 *Java* 或 *Kotlin* 工程，这里有两种工程形式。
+Before writing your first *ClassTransformer*, you need a *Java* or *Kotlin* project. There are two types of project structures.
 
 ### buildSrc Project
 
-如果已经有一个 *Android* 工程了，可以直接在工程根目录新建一个 *buildSrc* 目录，*Gradle* 会把 *buildSrc* 当作构建工程，对它进行编译和测试，然后将其加入 *buildscript* 的 *classpath* 中，对于有多个子程的项目来说，只能有一个 *buildSrc* 目录位于工程根目录，对于复杂的构建来说，优先选择通过 *buildSrc* 来组织构建脚本。
+If you already have an *Android* project, you can create a *buildSrc* directory directly in the project root directory. *Gradle* will treat *buildSrc* as a build project, compile and test it, and then add it to the *buildscript* *classpath*. For projects with multiple subprojects, there can only be one *buildSrc* directory in the project root. For complex builds, using *buildSrc* to organize build scripts is preferred.
 
-然后在 *buildSrc* 目录下，创建如下目录结构：
+Then create the following directory structure under the *buildSrc* directory:
 
 ```
 buildSrc/
@@ -19,20 +19,20 @@ buildSrc/
         └── kotlin
 ```
 
-> 对于 *Android* 开发者来说，推荐用 *buildSrc* 的方式，这样在一个工程中，上手更容易。
+> For *Android* developers, the *buildSrc* approach is recommended as it's easier to get started within a single project.
 
 ### Standalone Java Project
 
-如果需要将 *ClassTransformer* 共享给多个 *Android* 工程，采用独立的 *Java* 工程会更合适。
+If you need to share the *ClassTransformer* across multiple *Android* projects, a standalone *Java* project would be more appropriate.
 
-我们可以通过 *gradle* 命令，来创建一个 *Java* 工程：
+We can create a *Java* project using the *gradle* command:
 
 ```bash
-$ mkdir BoosterDemo                 # 创建 BoosterDemo 工程 
-$ cd BoosterDemo && gradle init     # 初始化工程
+$ mkdir BoosterDemo                 # Create BoosterDemo project
+$ cd BoosterDemo && gradle init     # Initialize project
 ```
 
-然后选择工程类型：
+Then select the project type:
 
 ```
 Starting a Gradle Daemon (subsequent builds will be faster)
@@ -45,7 +45,7 @@ Select type of project to generate:
 Enter selection (default: basic) [1..4]
 ```
 
-这里，我们选择 *3: library*，接下来，选择语言：
+Here, we select *3: library*. Next, select the language:
 
 ```
 Select implementation language:
@@ -58,9 +58,9 @@ Select implementation language:
 Enter selection (default: Java) [1..6]
 ```
 
-这里可以根据自己的喜好选择： *Groovy* / *Java* / *Kotlin* ／ *Scala* 其中之一，假设，我们选择 *4: Kotlin*：
+Here you can choose according to your preference: *Groovy* / *Java* / *Kotlin* / *Scala*. Let's assume we select *4: Kotlin*:
 
-接下来，选择构建脚本的 *DSL*：
+Next, select the build script *DSL*:
 
 ```
 Select build script DSL:
@@ -69,51 +69,51 @@ Select build script DSL:
 Enter selection (default: Kotlin) [1..2]
 ```
 
-如果对 *Kotlin DSL* 不太熟的话，可以选择 *1: Groovy*：
+If you're not familiar with *Kotlin DSL*, you can select *1: Groovy*:
 
-然后，输入工程名，或者用默认的工程名（目录名）：
+Then, enter the project name, or use the default project name (directory name):
 
 ```
 Project name (default: BoosterDemo):
 ```
 
-然后输入源代码的包名：
+Then enter the source code package name:
 
 ```
 Source package (default: BoosterDemo): io.johnsonlee.booster.demo
 ```
 
-这样，*Java Library* 工程就创建好了。
+Now, the *Java Library* project is created.
 
 ```
 .
 ├── build.gradle
 ├── gradle
-│   └── wrapper
-│       ├── gradle-wrapper.jar
-│       └── gradle-wrapper.properties
+│   └── wrapper
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties
 ├── gradlew
 ├── gradlew.bat
 ├── settings.gradle
 └── src
     ├── main
-    │   ├── kotlin
-    │   │   └── io
-    │   │       └── johnsonlee
-    │   │           └── booster
-    │   │               └── Library.kt
-    │   └── resources
+    │   ├── kotlin
+    │   │   └── io
+    │   │       └── johnsonlee
+    │   │           └── booster
+    │   │               └── Library.kt
+    │   └── resources
     └── test
         ├── kotlin
-        │   └── io
-        │       └── johnsonlee
-        │           └── booster
-        │               └── LibraryTest.kt
+        │   └── io
+        │       └── johnsonlee
+        │           └── booster
+        │               └── LibraryTest.kt
         └── resources
 ```
 
 ::: tip
-如果采用独立的 *Java Library* 工程需要将 *Java Library* 工程发布到 Maven 仓库才能集成到 Android 工程中，例如：发布到本地 Maven 仓库：
+If using a standalone *Java Library* project, you need to publish the *Java Library* project to a Maven repository before integrating it into an Android project. For example, to publish to the local Maven repository:
 
 ```bash
 ./gradlew publishToMavenLocal
@@ -122,7 +122,7 @@ Source package (default: BoosterDemo): io.johnsonlee.booster.demo
 
 ## Introducing Booster
 
-准备好工程后，接下来在 *Java Library* 工程或者 *Android* 工程的 *buildSrc* 目录中的 *build.gradle* 文件中，引入 *Booster* 依赖：
+After preparing the project, add the *Booster* dependency in the *build.gradle* file of the *Java Library* project or the *buildSrc* directory of the *Android* project:
 
 ```groovy
 buildscript {
@@ -177,7 +177,7 @@ compileTestKotlin {
 
 dependencies {
     api "com.android.tools.build:gradle:$agp_version"
-    /* 👇👇👇👇 引用这两个模块 👇👇👇👇 */
+    /* 👇👇👇👇 Reference these two modules 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0"
     api "com.didiglobal.booster:booster-api:$booster_version"
 }
@@ -185,12 +185,12 @@ dependencies {
 
 ## ASM-Based Class Transformer
 
-基于 *ASM* 的 *ClassTransformer* 需要在 `dependencies` 中引入 [booster-transform-asm](https://github.com/didi/booster/tree/master/booster-transform-asm) 依赖：
+The ASM-based *ClassTransformer* requires adding the [booster-transform-asm](https://github.com/didi/booster/tree/master/booster-transform-asm) dependency in `dependencies`:
 
 ```groovy
 dependencies {
     api "com.android.tools.build:gradle:$agp_version"
-    /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
+    /* 👇👇👇👇 Reference these three modules 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0"
     api "com.didiglobal.booster:booster-api:$booster_version"
     api "com.didiglobal.booster:booster-transform-asm:$booster_version"
@@ -218,12 +218,12 @@ class FirstClassTransformer : ClassTransformer {
 
 ## Javassist-Based Class Transformer
 
-基于 *Javassist* 的 *ClassTransformer* 需要在 `dependencies` 中引入 [booster-transform-javassist](https://github.com/didi/booster/tree/master/booster-transform-javassist) 依赖：
+The Javassist-based *ClassTransformer* requires adding the [booster-transform-javassist](https://github.com/didi/booster/tree/master/booster-transform-javassist) dependency in `dependencies`:
 
 ```groovy
 dependencies {
     api "com.android.tools.build:gradle:$agp_version"
-    /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
+    /* 👇👇👇👇 Reference these three modules 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0"
     api "com.didiglobal.booster:booster-api:$booster_version"
     api "com.didiglobal.booster:booster-transform-javassist:$booster_version"
@@ -251,7 +251,7 @@ class FirstClassTransformer : ClassTransformer {
 
 ## Configuring Android Project
 
-至此，第一个 *ClassTransformer* 基本完成，接下来在 *Android* 工程的 *build.gradle* 中配置 *Booster*：
+At this point, the first *ClassTransformer* is basically complete. Next, configure *Booster* in the *build.gradle* of the *Android* project:
 
 ```groovy
 buildscript {
@@ -268,7 +268,7 @@ buildscript {
         classpath "com.android.tools.build:gradle:$agp_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
-        /* 👇👇👇👇 引用 Booster Gradle 插件 👇👇👇👇 */
+        /* 👇👇👇👇 Reference Booster Gradle plugin 👇👇👇👇 */
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
     }
 }
@@ -284,7 +284,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-/* 👇👇👇👇 应用 Booster 插件 👇👇👇👇 */
+/* 👇👇👇👇 Apply Booster plugin 👇👇👇👇 */
 apply plugin: 'com.didiglobal.booster'
 
 android {
@@ -324,13 +324,13 @@ dependencies {
 
 ## Verifying the FirstClassTransformer
 
-在 *Android* 工程下，执行 *assemble* 任务：
+In the *Android* project, execute the *assemble* task:
 
 ```bash
 $ ./gradlew assembleDebug
 ```
 
-观察控制台的标准输出，是否有如下内容：
+Observe the console standard output to see if it contains content like:
 
 ```
 Transforming kotlinx/android/parcel/TypeParceler

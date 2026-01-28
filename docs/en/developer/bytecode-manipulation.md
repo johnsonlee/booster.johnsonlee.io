@@ -2,14 +2,14 @@
 
 ## Transformer
 
-在 *Booster* 中，跟字节码相关的操作都是通过 [Transformer](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Transformer.kt) 来完成，它是对字节码转换的简单抽象，以字节码的二进制做为输入，经过转换后，输出字节码二进制，它与具体使用哪种字节码操作框架无关，开发者可以自己选择跟字节码操作框架相关的特定实现， *Booster* 提供了两种实现：
+In *Booster*, all bytecode-related operations are performed through [Transformer](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Transformer.kt), which is a simple abstraction for bytecode transformation. It takes bytecode binary as input and outputs transformed bytecode binary. It is independent of which bytecode manipulation framework is used, allowing developers to choose specific implementations related to their preferred bytecode framework. *Booster* provides two implementations:
 
-1. 基于 *ASM* 的实现：[AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt)
-1. 基于 *Javassist* 的实现：[JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt)
+1. ASM-based implementation: [AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt)
+1. Javassist-based implementation: [JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt)
 
 ## Custom Transformer
 
-除了 [AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt) 和 [JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt) 外，*Booster* 允许开发者实现自己的 [Transformer](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Transformer.kt)，以 [Apache Commons BCEL](http://commons.apache.org/proper/commons-bcel/) 为例：
+In addition to [AsmTransformer](https://github.com/didi/booster/blob/master/booster-transform-asm/src/main/kotlin/com/didiglobal/booster/transform/asm/AsmTransformer.kt) and [JavassistTransformer](https://github.com/didi/booster/blob/master/booster-transform-javassist/src/main/kotlin/com/didiglobal/booster/transform/javassist/JavassistTransformer.kt), *Booster* allows developers to implement their own [Transformer](https://github.com/didi/booster/blob/master/booster-transform-spi/src/main/kotlin/com/didiglobal/booster/transform/Transformer.kt). Here's an example using [Apache Commons BCEL](http://commons.apache.org/proper/commons-bcel/):
 
 ```kotlin
 interface ClassTransformer : TransformerListener {
@@ -47,5 +47,5 @@ class BcelTransformer(val classLoader: ClassLoader) : Transformer {
 ```
 
 ::: tip
-需要注意的是，带 `ClassLoader` 参数的构造方法不是必须的，但会影响在 *BcelTransformer* 中通过 `ServiceLoader` 加载自定义的 *ClassTransformer*。
+Note that the constructor with `ClassLoader` parameter is not required, but it will affect loading custom *ClassTransformer* via `ServiceLoader` in *BcelTransformer*.
 :::

@@ -2,25 +2,25 @@
 
 ## ASM vs Javassist
 
-很多开发者在选择字节码操作框架之初，都会有所疑惑，到底是选择 *Javassist* 呢？还是 *ASM* 呢？我们可能从以下几个方面来对比一下两者之间的差异，以及适用范围：
+Many developers are confused when first choosing a bytecode manipulation framework - should they choose *Javassist* or *ASM*? Let's compare the differences and applicable scenarios between them from several aspects:
 
-| 特性           | Javassist                                | ASM                                      |
-|:---------------|:-----------------------------------------|:-----------------------------------------|
-| 包大小         | 771 KB (3.27)                            | 265 KB (6.0 BETA)                        |
-| 性能           | 劣于 *ASM*                               | 优于 *Javassist*                         |
-| API 封装程度   | 高                                       | 低                                       |
-| 功能完备程度   | 完备                                     | 完备                                     |
-| 对开发者的要求 | 基本了解 *class* 文件格式和 *JVM* 指令集 | 需要精通 *class* 文件格式和 *JVM* 指令集 |
-| 学习曲线       | 平缓                                     | 陡峭                                     |
-| 文档及手册     | 简单明了                                 | 有些繁琐（Vistor 模式让初学者有点懵）    |
+| Feature               | Javassist                                | ASM                                      |
+|:----------------------|:-----------------------------------------|:-----------------------------------------|
+| Package Size          | 771 KB (3.27)                            | 265 KB (6.0 BETA)                        |
+| Performance           | Inferior to *ASM*                        | Superior to *Javassist*                  |
+| API Abstraction Level | High                                     | Low                                      |
+| Feature Completeness  | Complete                                 | Complete                                 |
+| Developer Requirements| Basic understanding of *class* file format and *JVM* instruction set | Proficiency in *class* file format and *JVM* instruction set required |
+| Learning Curve        | Gentle                                   | Steep                                    |
+| Documentation & Manual| Simple and clear                         | Somewhat tedious (Visitor pattern can be confusing for beginners) |
 
-从上面的对比来看，我想各位读者已经有所选择，对我个人而言，如果是初学者，建议选择 *Javassist*，毕竟上手快，学习起来比较容易，如果是对性能、包体积方面要求比较高，建议选择 *ASM*。
+From the comparison above, I believe readers have already made their choice. Personally, I recommend *Javassist* for beginners since it's quick to get started and easier to learn. If you have high requirements for performance and package size, I recommend *ASM*.
 
-所以，为了照顾到尽可能多的开发者，*Booster* 对两者都做了支持，看过 *Booster* 的源码的同学可能会问，为什么 *Booster* 的大部分实现都是基于 *ASM* 呢？究竟有哪些考量？
+Therefore, to accommodate as many developers as possible, *Booster* supports both. Those who have read the *Booster* source code might ask: why are most of *Booster*'s implementations based on *ASM*? What were the considerations?
 
 ## ASM & Javassist Benchmark Test
 
-*Booster* 最初在选择字节码操作框架的时候，最主要的考量因素是性能，*Booster* 作为质量优化框架，不仅自身模块在性能上要求做到极致，也要让其他开发者基于 *Booster* 开发的功能在性能上也要表现卓越，所以，针对 *Javassist* 和 *ASM* 在字节码处理方面的性能作了 *benchmark* 测试，以下是通过处理 *guava-28.2-jre.jar* 来对比二者之间的性能：
+When *Booster* initially chose a bytecode manipulation framework, the primary consideration was performance. As a quality optimization framework, *Booster* not only requires its own modules to achieve extreme performance, but also expects features developed by other developers based on *Booster* to perform excellently. Therefore, a *benchmark* test was conducted on the bytecode processing performance of *Javassist* and *ASM*. The following shows the performance comparison between the two by processing *guava-28.2-jre.jar*:
 
 ```kotlin
 @BenchmarkMode(Mode.AverageTime)
@@ -61,17 +61,17 @@ open class JavassistVsAsmBenchmark {
 }
 ```
 
-> *Benchmark* 测试代码：https://github.com/johnsonlee/booster-benchmark
+> *Benchmark* test code: https://github.com/johnsonlee/booster-benchmark
 
-*Benchmark* 测试结果如下：
+*Benchmark* test results are as follows:
 
 |Benchmark                                          | Mode | Cnt |   Score |    Error | Units |
 |:--------------------------------------------------|------|-----|---------|----------|-------|
 |JavassistVsAsmBenchmark.transformJarUsingAsm       | avgt |  10 | 203.489 | ± 52.174 | ms/op |
 |JavassistVsAsmBenchmark.transformJarUsingJavassist | avgt |  10 | 277.695 | ± 10.801 | ms/op |
 
-从上面的结果来看，*ASM* 平均耗时更低
+From the results above, *ASM* has lower average execution time.
 
 ## Apache BCEL
 
-除了 *ASM* 和 *Javassist* 以外，*Booster* 同样支持使用其它的字节码框架，比如：[Apache Commons BCEL](https://commons.apache.org/bcel/)，只不过，*ASM* 和 *Javassist* 是 *Booster* 默认提供了支持，如果要在项目中使用 [Apache Commons BCEL](https://commons.apache.org/bcel/) —— 请参阅[字节码操作 - 自定义 Transformer](./bytecode-transformer.html#自定义-transformer)。
+In addition to *ASM* and *Javassist*, *Booster* also supports other bytecode frameworks, such as [Apache Commons BCEL](https://commons.apache.org/bcel/). However, *ASM* and *Javassist* are supported by default in *Booster*. If you want to use [Apache Commons BCEL](https://commons.apache.org/bcel/) in your project, please refer to [Bytecode Manipulation - Custom Transformer](./bytecode-transformer.html#custom-transformer).

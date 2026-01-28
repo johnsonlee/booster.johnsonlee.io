@@ -1,30 +1,30 @@
-# 高性能文件系统 I/O
+# High-Performance File System I/O
 
-## 仅一次文件系统 I/O
+## Single File System I/O
 
-在 [字节码处理流水线](./transformer-pipeline.md) 这一章中，我们了解到 *Android Gradle Plugin* 是以流水线的方式来处理字节码的，`BoosterTransform` 作为 *Transform Pipeline* 中的一个节点，负责从 `TransformStream` 中接收输入（*JAR* 或者目录），然后经过处理后，再输出到指定的路径，*Booster* 对 *JAR* 文件的处理方式是一边读一边进行处理，而不是将 *JAR* 解压到磁盘再读，这样作的好处有：
+In the [Bytecode Processing Pipeline](./transformer-pipeline.md) chapter, we learned that *Android Gradle Plugin* processes bytecode in a pipeline manner. `BoosterTransform`, as a node in the *Transform Pipeline*, is responsible for receiving input (*JAR* or directory) from `TransformStream`, processing it, and then outputting it to the specified path. *Booster* processes *JAR* files by reading and processing them simultaneously, rather than extracting the *JAR* to disk first and then reading. The benefits of this approach are:
 
-1. 减少 *I/O* 开销；
+1. Reduced *I/O* overhead;
 
-    如果是先将 *JAR* 解压到磁盘再读取其中的 *class*，每处理完一个 *class* 还需要再写一次文件，无形中会多出 *2N* 次 *I/O* 操作（*N* 为 *JAR* 中 *class* 的数量），而且遍历目录也会存在性能损耗，通过 *benchmark* 测试，我们发现，先解压再处理的方式在性能表现上远不及一边读一边处理。
+    If you first extract the *JAR* to disk and then read the *class* files within, you need to write to the file system again after processing each *class*. This invisibly adds *2N* extra *I/O* operations (*N* being the number of *class* files in the *JAR*). Additionally, directory traversal also incurs performance overhead. Through *benchmark* testing, we found that the extract-then-process approach performs far worse than the read-while-processing approach.
 
-1. 避免因不同的 *JAR* 中包含同名的 *class* 导致解压到磁盘时被同名的 *class* 所覆盖的问题；
+1. Avoids the problem of *class* files being overwritten by same-named *class* files when different *JARs* contain classes with the same name;
 
-    在平常的开发过程中，可能有些模块会将本地 *JAR* 打包进 *AAR* 中，如果两个不同的模块都依赖了相同的本地 *JAR* 的不同版本，采用先解压的方式可能会将这种情况掩盖，更有可能旧版本覆盖新版本等诸多无法预测的问题。
+    During normal development, some modules may package local *JARs* into *AARs*. If two different modules depend on different versions of the same local *JAR*, the extract-first approach might mask this situation, or worse, an older version might overwrite a newer version, leading to many unpredictable issues.
 
-## 并行 I/O
+## Parallel I/O
 
-### 并行处理 class
+### Parallel Processing of Classes
 
-在 [字节码处理流水线](./transformer-pipeline.md) 这一章中，我们了解到 *Booster* 采用了并行 *Transfomer Pipeline* 的方案，不仅如此，在字节码处理完成之后，输出 *JAR* 的过程中，同样采用了并行写的方式，通过对 `$ANDROID_HOME/platforms/android-28/android.jar` 进行 *benchmark* 测试，我们发现串行 *I/O* 的平均耗时几乎是并行 *I/O* 一倍，*benchmark* 测试结果如下表所示：
+In the [Bytecode Processing Pipeline](./transformer-pipeline.md) chapter, we learned that *Booster* adopts a parallel *Transformer Pipeline* solution. Furthermore, after bytecode processing is complete, the output *JAR* is also written in parallel. Through *benchmark* testing on `$ANDROID_HOME/platforms/android-28/android.jar`, we found that the average time for sequential *I/O* is almost double that of parallel *I/O*. The *benchmark* test results are shown in the following table:
 
 | Benchmark                           | Mode | Cnt |    Score |   Error  | Units |
 |-------------------------------------|:----:|:---:|:--------:|:--------:|:-----:|
 | transformJarFileSequentially        | avgt |  10 | 1261.791 | ± 13.966 | ms/op |
 | transformJarFileWithFixedThreadPool | avgt |  10 |  708.439 | ± 37.973 | ms/op |
 
-### 并行遍历文件
+### Parallel File Traversal
 
-通常我们遍历目录会使用 `File.listFiles(...)` 或者 `FileTreeWalker`，对于为数不多的文件来说，并没有什么弊端，但是，对于拥有成千上万个 *class* 的工程来说，这种串行遍历文件系统的方式在性能上就会表现出明显的不足，为了最大限度的提升构建速度，*Booster* 提供了 [FileSearch](https://github.com/didi/booster/blob/master/booster-kotlinx/src/main/kotlin/com/didiglobal/booster/kotlinx/FileSearch.kt) 实用类，通过 [Fork/Join Framework](https://docs.oracle.com/javase/tutorial/essential/concurrency/forkjoin.html) 来实现文件系统的并行遍历，像 *class* 文件遍历，图片资源遍历等都使用了并行遍历的方式。
+Typically, we traverse directories using `File.listFiles(...)` or `FileTreeWalker`. For a small number of files, there are no significant drawbacks. However, for projects with thousands of *class* files, this sequential file system traversal shows obvious performance deficiencies. To maximize build speed, *Booster* provides the [FileSearch](https://github.com/didi/booster/blob/master/booster-kotlinx/src/main/kotlin/com/didiglobal/booster/kotlinx/FileSearch.kt) utility class, which implements parallel file system traversal through the [Fork/Join Framework](https://docs.oracle.com/javase/tutorial/essential/concurrency/forkjoin.html). Both *class* file traversal and image resource traversal use parallel traversal.
 
-另外，[booster-kotlinx](https://github.com/didi/booster/blob/master/booster-kotlinx) 模块还提供了一系列的扩展方法来提升插件开发的便利性，详情请参见：[Package com.didiglobla.booster.kotlinx](https://reference.johnsonlee.io/booster/com.didiglobal.booster.kotlinx/index.html)
+Additionally, the [booster-kotlinx](https://github.com/didi/booster/blob/master/booster-kotlinx) module provides a series of extension methods to enhance plugin development convenience. For details, please refer to: [Package com.didiglobal.booster.kotlinx](https://reference.johnsonlee.io/booster/com.didiglobal.booster.kotlinx/index.html)

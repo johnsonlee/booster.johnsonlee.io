@@ -2,28 +2,28 @@
 
 ## The AP_ File
 
-在 *Android* 的构建流程中，真正将 *dex*, *resources*, *assets*, *so* 等文件合并成 *APK* 的工作是在 *package Task* 里完的，而在 *APK* 生成之前，其实已经有了原型—— *AP_* 文件，也就是 *processRes Task* 的产物，里面的内容包括：
+In the *Android* build process, the actual work of merging *dex*, *resources*, *assets*, *so*, and other files into an *APK* is done in the *package Task*. Before the *APK* is generated, there's already a prototype - the *AP_* file, which is the artifact of the *processRes Task*. It contains:
 
 1. `AndroidManifest.xml`
 1. `res/*`
 1. `resources.arsc`
 
-其中 `res/*` 是合并后的所有资源，`resources.arsc` 则是 `res/*` 的索引表（详见：[Resource Table 概述](../agp/resource-table.html)），通过 `file` 命令查看一下文件格式：
+Where `res/*` are all merged resources, and `resources.arsc` is the index table for `res/*` (see: [Resource Table Overview](../agp/resource-table.html)). We can check the file format using the `file` command:
 
 ```bash
 $ file ./build/intermediates/processed_res/debug/out/resources-debug.ap_
 ```
-得到如下输出结果：
+This produces the following output:
 ```
 ./build/intermediates/processed_res/debug/out/resources-debug.ap_: Zip archive data
 ```
 
-原来 *AP_* 文件就是一个普通的 *ZIP* 文件，通过 `unzip` 命令查看该文件内容：
+It turns out the *AP_* file is just a regular *ZIP* file. Let's view its contents using the `unzip` command:
 
 ```bash
 $ unzip -lv ./build/intermediates/processed_res/debug/out/resources-debug.ap_
 ```
-得到如下输出结果：
+This produces the following output:
 ```
 Archive:  ./build/intermediates/processed_res/debug/out/resources-debug.ap_
  Length   Method    Size  Cmpr    Date    Time   CRC-32   Name
@@ -61,13 +61,13 @@ Archive:  ./build/intermediates/processed_res/debug/out/resources-debug.ap_
   609517           510626  16%                            440 files
 ```
 
-其中，第 2 列 *Method* 就是存入 *ZIP* 文件中采用的压缩方法，参考 *JDK References* 中 [ZipEntry.setMethod(int)](https://docs.oracle.com/javase/8/docs/api/java/util/zip/ZipEntry.html#setMethod-int-)：
+Column 2 *Method* shows the compression method used when storing files in the *ZIP* file. Refer to [ZipEntry.setMethod(int)](https://docs.oracle.com/javase/8/docs/api/java/util/zip/ZipEntry.html#setMethod-int-) in *JDK References*:
 
 | setMethod |
 |:----------|
 | `public void setMethod(int method)`<br><br>Sets the compression method for the entry.<br><br>**Parameters:** <br>*method - the compression method, either `STORED` or `DEFLATED`*<br> **Throws:**<br> *IllegalArgumentException - if the specified compression method is invalid*<br> |
 
-关于 `STORED` 和 `DEFLATED` 的定义：
+About the definitions of `STORED` and `DEFLATED`:
 
 | STORED                                                                               |
 |:-------------------------------------------------------------------------------------|
@@ -77,11 +77,11 @@ Archive:  ./build/intermediates/processed_res/debug/out/resources-debug.ap_
 |:------------------------------------------------------------------------------------------------|
 | `public static final int DEFLATED` <br><br>Compression method for compressed (deflated) entries.|
 
-所以，采用 *ZIP* 打包的文件不一定都是压缩过的，也有未压缩的，这也很容易理解，像图片、音频、视频文件，已经编码压缩过，再用 *ZIP* 压缩也根本压缩不了多少，有的可能压缩后比原来还要大，所以，这又为我们做包体积瘦身打开了另一扇大门。
+Therefore, files packaged with *ZIP* are not necessarily all compressed; some are uncompressed. This is easy to understand - files like images, audio, and video are already encoded and compressed, and compressing them again with *ZIP* won't reduce their size much. Some may even become larger after compression. This opens another door for APK size optimization.
 
 ## The Solution
 
-既然 *AP_* 文件是 *processRes Task* 的产物，那我们直接在 *processRes Task* 任务完成之后对 *AP_* 文件进行重新压缩，逻辑简单明了：
+Since the *AP_* file is the artifact of the *processRes Task*, we can re-compress the *AP_* file directly after the *processRes Task* completes. The logic is simple and clear:
 
 ```kotlin
 @AutoService(VariantProcessor::class)
@@ -101,7 +101,7 @@ class ProcessedResourcesCompressionVariantProcessor : VariantProcessor {
 
 ## Getting Started
 
-开启 *ZIP* 压缩只需要引入 [booster-task-compression-processed-res](https://github.com/didi/booster/blob/master/booster-task-compression-processed-res) 即可，如下所示：
+To enable *ZIP* compression, simply include [booster-task-compression-processed-res](https://github.com/didi/booster/blob/master/booster-task-compression-processed-res), as shown below:
 
 
 ```groovy
@@ -123,7 +123,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-task-compression-processed-res:$booster_version"
     }
 }
@@ -131,9 +131,8 @@ buildscript {
 
 ## *7-zip* Compression
 
-[7-zip](https://www.7-zip.org/) 与 *ZIP* 压缩的原理相同，只不过 *7-zip* 采用了压缩率更高的 *LZMA* 和 *LZMA2* 算法，瘦身效果更佳，推荐使用 [AndResguard](https://github.com/shwenzhang/AndResGuard)，虽然 *7-zip* 的压缩效果非常显著，但是会存在一些副作用，可能会导致 *Google Play* 的优化算法失效。
+[7-zip](https://www.7-zip.org/) works on the same principle as *ZIP* compression, but *7-zip* uses the higher compression ratio *LZMA* and *LZMA2* algorithms for better size reduction. It's recommended to use [AndResguard](https://github.com/shwenzhang/AndResGuard). Although *7-zip* compression results are very significant, there can be some side effects - it may cause *Google Play*'s optimization algorithm to fail.
 
-## Is It Really Necessary to Compress *arsc* or *so*？
+## Is It Really Necessary to Compress *arsc* or *so*?
 
-从技术角度来说，*Google* 官方并不推荐对 *resources.arsc* 和 *so* 进行压缩，这样会导致它们不能被直接 *mmap* 到内存，但如果从业务角度来看，如果 *APK* 的大小成为了阻碍用户增长的一个因素，而通过压缩 *resources.arsc* 和 *so* 对用户增长有显著的正向收益，何尝不可呢？
-
+From a technical perspective, *Google* officially does not recommend compressing *resources.arsc* and *so*, as this prevents them from being directly *mmap*ed into memory. However, from a business perspective, if the *APK* size becomes a factor hindering user growth, and compressing *resources.arsc* and *so* has significant positive benefits for user growth, why not?

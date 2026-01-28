@@ -1,10 +1,10 @@
-# 动态库清单
+# Shared Library List
 
-在工程规模足够复杂的项目中，要想清楚的知道哪些库引入了哪些动态库，对于开发者来说，也是一件麻烦的事件，为了方便开发者排查动态库相关的问题，*Booster 提供了 [booster-task-list-shared-library](https://github.com/didi/booster/blob/master/booster-task-list-shared-library) 模块，用于列出工程中依赖的 *AAR* 中使用的所有的动态库。
+In projects with sufficiently complex engineering structures, it can be troublesome for developers to know exactly which libraries have introduced which native libraries. To help developers troubleshoot issues related to native libraries, *Booster* provides the [booster-task-list-shared-library](https://github.com/didi/booster/blob/master/booster-task-list-shared-library) module for listing all native libraries used in the *AAR* dependencies of the project.
 
-## 如何使用
+## Getting Started
 
-在根工程的 *build.gradle* 中引入 [booster-task-list-shared-library](https://github.com/didi/booster/blob/master/booster-task-list-shared-library) 模块，如下所示：
+Include the [booster-task-list-shared-library](https://github.com/didi/booster/blob/master/booster-task-list-shared-library) module in the root project's *build.gradle*, as shown below:
 
 ```groovy
 buildscript {
@@ -25,13 +25,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-task-list-shared-library:$booster_version"
     }
 }
 ```
 
-然后，在命令行中执行 `listSharedLibraries` 任务：
+Then, execute the `listSharedLibraries` task from the command line:
 
 ```bash
 $ ./gradlew listSharedLibraries

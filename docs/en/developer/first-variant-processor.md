@@ -2,7 +2,7 @@
 
 ## Introducing Booster
 
-准备好工程后，接下来在 *Java Library* 工程或者 *Android* 工程的 *buildSrc* 目录中的 *build.gradle* 文件中，引入 *Booster* 依赖：
+After preparing the project, add the *Booster* dependency in the *build.gradle* file of the *Java Library* project or the *buildSrc* directory of the *Android* project:
 
 ```groovy
 buildscript {
@@ -57,7 +57,7 @@ compileTestKotlin {
 
 dependencies {
     api gradleApi()
-    /* 👇👇👇👇 引用这三个模块 👇👇👇👇 */
+    /* 👇👇👇👇 Reference these three modules 👇👇👇👇 */
     kapt "com.google.auto.service:auto-service:1.0"
     api 'com.android.tools.build:gradle:$agp_version'
     api "com.didiglobal.booster:booster-api:$booster_version"
@@ -89,18 +89,18 @@ class SimpleVariantProcessor(val project: Project) : VariantProcessor {
 ```
 
 ::: tip
-`VariantProcessor` 构造方法中的 `Project` 参数是可选的
+The `Project` parameter in the `VariantProcessor` constructor is optional.
 :::
 
 ## Verifying FirstVariantProcessor
 
-在 *Android* 工程下，执行 *assemble* 任务：
+In the *Android* project, execute the *assemble* task:
 
 ```bash
 $ ./gradlew assembleDebug
 ```
 
-观察控制台的标准输出，是否有如下内容：
+Observe the console standard output to see if it contains content like:
 
 ```
 app: debug

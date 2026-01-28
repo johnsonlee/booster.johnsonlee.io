@@ -1,12 +1,12 @@
 # Using ClassTransformer with Task
 
-在平常的开发过程中，我们可能需要在 *Task* 中依赖 *Android Transform Pipeline* 的产出物，例如：[booster-task-analyser](https://github.com/didi/booster/blob/master/booster-task-analyser) 就是在 [AnalyserTask](https://github.com/didi/booster/blob/master/booster-task-analyser/src/main/kotlin/com/didiglobal/booster/task/analyser/AnalyserTask.kt) 中对 *Android Transform Pipeline* 的产出物进行静态分析，针对这种应用场景，*Booster* 提供了一系列实用类和扩展方法：
+In daily development, we may need to depend on the artifacts of the *Android Transform Pipeline* in a *Task*. For example, [booster-task-analyser](https://github.com/didi/booster/blob/master/booster-task-analyser) performs static analysis on the artifacts of the *Android Transform Pipeline* in [AnalyserTask](https://github.com/didi/booster/blob/master/booster-task-analyser/src/main/kotlin/com/didiglobal/booster/task/analyser/AnalyserTask.kt). For this use case, *Booster* provides a series of utility classes and extension methods:
 
 - [booster-api](https://github.com/didi/booster/blob/master/booster-api)
 
 - [VariantTransformHelper.kt](https://github.com/didi/booster/blob/master/booster-api/src/main/kotlin/com/didiglobal/booster/transform/VariantTransformHelper.kt)
 
-## 通过 *VariantProcessor* 创建 *Task*
+## Creating *Task* via *VariantProcessor*
 
 ```kotlin
 @AutoService(VariantProcessor::class)
@@ -35,7 +35,7 @@ class ScannerVariantProcessor : VariantProcessor {
 }
 ```
 
-## 通过 *VariantTransformHelper* 复用 *Transformer*
+## Reusing *Transformer* via *VariantTransformHelper*
 
 ```kotlin
 open class ScannerTask : AbstractTask() {
@@ -57,7 +57,7 @@ open class ScannerTask : AbstractTask() {
 }
 ```
 
-## 自定义 *ClassTransformer*
+## Custom *ClassTransformer*
 
 ```kotlin
 @AutoService(ClassTransformer::class)

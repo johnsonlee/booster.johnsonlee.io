@@ -1,10 +1,10 @@
-# 构建中间产物清单
+# Build Artifact List
 
-在针对 *Android* 工程开发 *Gradle* 插件的过程中，经常会用到一些内部 *API*，需要了解 *Android* 构建过程的细节和内部实现，以便于在合适的时机插入特定的 *Task* 来获取 *AGP* 的中间产物，为了方便 *Gradle Plugin* 的开发者，*Booster* 提供了 [booster-task-list-artifact](https://github.com/didi/booster/blob/master/booster-task-list-artifact) 模块，用于列出 *Android* 工程的构建中间产物。
+When developing *Gradle* plugins for *Android* projects, internal *API*s are often used. Understanding the details of the *Android* build process and internal implementations is necessary to insert specific *Task*s at the appropriate time to obtain intermediate artifacts from *AGP*. To help *Gradle Plugin* developers, *Booster* provides the [booster-task-list-artifact](https://github.com/didi/booster/blob/master/booster-task-list-artifact) module for listing the build intermediate artifacts of *Android* projects.
 
-## 如何使用
+## Getting Started
 
-在根工程的 *build.gradle* 中引入 [booster-task-list-artifact](https://github.com/didi/booster/blob/master/booster-task-list-artifact) 模块，如下所示：
+Include the [booster-task-list-artifact](https://github.com/didi/booster/blob/master/booster-task-list-artifact) module in the root project's *build.gradle*, as shown below:
 
 ```groovy
 buildscript {
@@ -25,13 +25,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-task-list-artifact:$booster_version"
     }
 }
 ```
 
-然后，在命令行中执行 `listArtifacts` 任务：
+Then, execute the `listArtifacts` task from the command line:
 
 ```bash
 $ ./gradlew listArtifacts

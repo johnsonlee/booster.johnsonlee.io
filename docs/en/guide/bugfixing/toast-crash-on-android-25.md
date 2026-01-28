@@ -1,6 +1,6 @@
 # Toast Crash on Android 7.1
 
-相信很多 *Android* 开发者都见过像这样的崩溃：
+Many *Android* developers have encountered crashes like this:
 
 ```
 android.view.WindowManager$BadTokenException: Unable to add window -- token android.os.BinderProxy@e2815e is not valid; is your activity running?
@@ -12,12 +12,12 @@ android.view.WindowManager$BadTokenException: Unable to add window -- token andr
     at android.os.Handler.dispatchMessage(Handler.java:102)
     at android.os.Looper.loop(Looper.java:154)
     at android.app.ActivityThread.main(ActivityThread.java:6119)
-    at java.lang.reflect.Method.invoke(Native Method) 
+    at java.lang.reflect.Method.invoke(Native Method)
 ```
 
 ## The Root Cause
 
-通过 *APM* 平台分析发现，这个问题仅发生在 *Android 7.1 (API Level 25)* 版本，所以断定，这是 *Android 7.1* 的系统 bug，通过查看源码，我们可以看到：
+Through analysis on the *APM* platform, it was found that this issue only occurs on *Android 7.1 (API Level 25)*. Therefore, it's determined to be a system bug in *Android 7.1*. By examining the source code, we can see:
 
 ```java
 public class Toast {
@@ -61,7 +61,7 @@ public class Toast {
                 mWM.removeView(mView);
             }
             if (localLOGV) Log.v(TAG, "ADD! " + mView + " in " + this);
-            mWM.addView(mView, mParams); // 👈👈👈👈 崩溃发生在这里
+            mWM.addView(mView, mParams); // The crash occurs here
             trySendAccessibilityEvent();
         }
     }
@@ -104,7 +104,7 @@ public class Toast {
 
 ## How To Solve It?
 
-在 *Android O (API Level 26)* 源码中，这个问题已经被修复了，修复方法就是简单粗暴的 `try-catch`：
+In the *Android O (API Level 26)* source code, this issue has been fixed. The fix is a simple `try-catch`:
 
 ```java
 public class Toast {
@@ -160,7 +160,7 @@ public class Toast {
             try {
                 mWM.addView(mView, mParams);
                 trySendAccessibilityEvent();
-            } catch (WindowManager.BadTokenException e) { // 👈👈👈👈 忽略掉异常
+            } catch (WindowManager.BadTokenException e) { // Ignore the exception
                 /* ignore */
             }
         }
@@ -169,7 +169,7 @@ public class Toast {
 }
 ```
 
-所以，*Booster* 也简单粗暴的将异常 `catch` 住，只不过，`catch` 的不是 `mWM.addView(mView, mParams)`，而是 `Toast$TN` 这个内部类的 `mHandler`，给它设置一个 `Handler.Callback`：
+Therefore, *Booster* also simply `catch`es the exception. However, instead of catching `mWM.addView(mView, mParams)`, it catches the `mHandler` of the internal class `Toast$TN` by setting a `Handler.Callback`:
 
 ```java
 public class ShadowToast {
@@ -216,11 +216,11 @@ public class ShadowToast {
 }
 ```
 
-在 [booster-transform-toast](https://github.com/didi/booster/blob/master/booster-transform-toast) 中，将 `Toast` 类及其子类的 `show()` 方法调用替换成 `ShadowToast.show(Toast)`。
+In [booster-transform-toast](https://github.com/didi/booster/blob/master/booster-transform-toast), the `show()` method calls of the `Toast` class and its subclasses are replaced with `ShadowToast.show(Toast)`.
 
 ## Getting Started
 
-修复 `Toast` 在 *Android 7.1* 的 bug 只需要引入 [booster-transform-toast](https://github.com/didi/booster/blob/master/booster-transform-toast) 即可，如下所示：
+To fix the *Android 7.1* `Toast` bug, simply include [booster-transform-toast](https://github.com/didi/booster/blob/master/booster-transform-toast), as shown below:
 
 
 ```groovy
@@ -238,7 +238,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-transform-toast:$booster_version"
     }
 }

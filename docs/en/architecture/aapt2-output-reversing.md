@@ -1,39 +1,39 @@
-# AAPT2 产物逆向
+# AAPT2 Output Reversing
 
-## 为什么要逆向 *AAPT2* 产物
+## Why Reverse AAPT2 Output
 
-根据上一章我们对 *Android* 工程的构建流程的了解，如果要处理 *APP* 中的资源，一般会选择从 *processRes* 任务的产出物中获取，而从 *Android Gradle Plugin 3.0.0* 开始，*processRes* 任务的产出物已经不再是原始的资源文件了，而是由特定的格式（*AAPT2*）所编码的二进制。
+Based on our understanding of the Android project build process from the previous chapter, if we want to process resources in an APP, we typically retrieve them from the output of the *processRes* task. However, starting from *Android Gradle Plugin 3.0.0*, the output of the *processRes* task is no longer the original resource files, but binary files encoded in a specific format (*AAPT2*).
 
-在 *Booster* 的优化特性中，有很多特性的来实现都依赖于解析这些被 *AAPT2* 编译过的二进制资源，例如：
+Many optimization features in *Booster* depend on parsing these binary resources compiled by *AAPT2*, for example:
 
-1. [booster-task-analyser](https://github.com/didi/booster/tree/master/booster-task-analyser) 以布局文件中的自定义 *View* 作为静态分析的入口来构建 *Call Graph*；
-1. [booster-transform-r-inline](https://github.com/didi/booster/tree/master/booster-transform-r-inline) 从布局文件中提取 *ConstraintLayout* 引用的资源 *ID*；
-1. [booster-task-compression-pngquant](https://github.com/didi/booster/tree/master/booster-task-compression-pngquant) 和 [booster-task-compression-cwebp](https://github.com/didi/booster/tree/master/booster-task-compression-cwebp) 从 *&#42;.png.flat* 文件中获取图片资源名称及其源文件路径；
-1. [booster-task-resource-deredundancy](https://github.com/didi/booster/tree/master/booster-task-resource-deredundancy) 从 *&#42;.png.flat* 文件中获取图片资源的 *Configuration*；
+1. [booster-task-analyser](https://github.com/didi/booster/tree/master/booster-task-analyser) uses custom *Views* in layout files as entry points for static analysis to build a *Call Graph*;
+1. [booster-transform-r-inline](https://github.com/didi/booster/tree/master/booster-transform-r-inline) extracts resource *IDs* referenced by *ConstraintLayout* from layout files;
+1. [booster-task-compression-pngquant](https://github.com/didi/booster/tree/master/booster-task-compression-pngquant) and [booster-task-compression-cwebp](https://github.com/didi/booster/tree/master/booster-task-compression-cwebp) retrieve image resource names and their source file paths from *&#42;.png.flat* files;
+1. [booster-task-resource-deredundancy](https://github.com/didi/booster/tree/master/booster-task-resource-deredundancy) retrieves the *Configuration* of image resources from *&#42;.png.flat* files;
 
-## 什么是 AAPT2 ?
+## What is AAPT2?
 
-*AAPT2*（*Android* 资源打包工具）是一个构建工具，*Android Studio* 和 *Android Gradle Plugin* 使用它来编译和打包应用的资源。*AAPT2* 会解析资源、为资源编制索引，并将资源编译为针对 Android 平台进行过优化的二进制格式。
+*AAPT2* (*Android* Asset Packaging Tool) is a build tool that *Android Studio* and *Android Gradle Plugin* use to compile and package application resources. *AAPT2* parses resources, indexes them, and compiles them into a binary format optimized for the Android platform.
 
-*AAPT2* 的可执行文件随 *Android SDK* 的 *Build Tools* 一起发布，以 *Build Tools 29.0.0* 为例，*aapt2* 可执行文件位于：
+The *AAPT2* executable is distributed with the *Build Tools* of the *Android SDK*. Taking *Build Tools 29.0.0* as an example, the *aapt2* executable is located at:
 
 ```
 $ANDROID_HOME/build-tools/29.0.0/aapt2
 ```
 
-从 *Android Gradle Plugin 3.0.0* 开始，*AAPT2* 默认开启，相对于 *AAPT*，资源打包流程由原来的单一编译过程拆分为「编译」和「链接」两个阶段。
+Starting from *Android Gradle Plugin 3.0.0*, *AAPT2* is enabled by default. Compared to *AAPT*, the resource packaging process has been split from a single compilation process into two stages: "compilation" and "linking".
 
-### 编译阶段
+### Compilation Phase
 
-*Android* 所有类型的资源的编译都是通过 *AAPT2* 来完成，资源的编译使用 *compile* 子命令，编译成功后，会生成一个扩展名为 *.flat* 的中间二进制文件，正常情况下，每一个输入的资源文件对应输出一个 *.flat* 文件，然后在后续的链接阶段使用。
+All types of Android resources are compiled through *AAPT2*. Resource compilation uses the *compile* subcommand. After successful compilation, an intermediate binary file with the *.flat* extension is generated. Normally, each input resource file corresponds to one output *.flat* file, which is then used in the subsequent linking phase.
 
-#### 编译单个资源
+#### Compiling a Single Resource
 
 ```bash
 $ aapt2 compile -o build ./app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 ```
 
-#### 编译多个资源
+#### Compiling Multiple Resources
 
 ```bash
 $ aapt2 compile -o build \
@@ -42,19 +42,19 @@ $ aapt2 compile -o build \
     ./app/src/main/res/values/strings.xml
 ```
 
-#### 编译整个目录
+#### Compiling an Entire Directory
 
 ```bash
 $ aapt2 compile -o build/resources.ap_  --dir ./app/src/main/res/
 ```
 
-通过 *unzip* 命令查看 *build/resources.ap_* 文件内容：
+View the contents of *build/resources.ap_* using the *unzip* command:
 
 ```bash
 $ unzip -lv build/resources.ap_
 ```
 
-结果如下：
+The result is as follows:
 
 ```
 Archive:  build/resources.ap_
@@ -85,16 +85,16 @@ Archive:  build/resources.ap_
 ```
 
 ::: warning
-注意：对于资源文件，输入文件的路径必须符合以下结构：path/`resource-type`[-`configuration`]/file，否则，会报如下错误：
+Note: For resource files, the input file path must conform to the following structure: path/`resource-type`[-`configuration`]/file. Otherwise, the following error will be reported:
 
 *error: invalid file path '...'*
 :::
 
-### 链接阶段
+### Linking Phase
 
-在链接阶段，*AAPT2* 会合并在编译阶段生成的所有中间文件（*.flat* 文件），并将它们打包成 *ZIP* 包（最终 *APK* 的原型，由于不包括 *DEX* 文件且未签名，所以无法正常安装）。
+In the linking phase, *AAPT2* merges all intermediate files (*.flat* files) generated during the compilation phase and packages them into a *ZIP* archive (the prototype of the final *APK*, which cannot be installed normally because it does not include *DEX* files and is unsigned).
 
-链接资源使用 *link* 子命令，如下所示：
+Resource linking uses the *link* subcommand, as shown below:
 
 ```bash
 $ aapt2 link -o build/resources.ap_ \
@@ -108,92 +108,93 @@ $ aapt2 link -o build/resources.ap_ \
     build/mipmap-xxxhdpi_ic_launcher_round.png.flat
 ```
 
-## AAPT2 容器格式
+## AAPT2 Container Format
 
-在 *AAPT2* 的编译阶段，会生成扩展名为 *.flat* 的中间二进制文件，这种以 *.flat* 作为扩展名的文件格式，被称之为 *AAPT2* 容器，*AAPT2* 容器文件由文件头和资源项两大部分组成，容器中的各个字段以小端（*Little-Endian*）字节序表示：
+During the *AAPT2* compilation phase, intermediate binary files with the *.flat* extension are generated. This file format with *.flat* as the extension is called the *AAPT2* container. An *AAPT2* container file consists of two main parts: the file header and resource entries. Each field in the container is represented in little-endian byte order:
 
-### AAPT2 文件头
+### AAPT2 File Header
 
-| 字段          | 字节数 | 描述                                                      |
-|---------------|:------:|-----------------------------------------------------------|
-| `magic`       | 4      | *AAPT2* 容器文件标识：`AAPT` 或 `0x54504141`              |
-| `version`     | 4      | *AAPT2* 容器版本                                          |
-| `entry_count` | 4      | 容器中包含的条目数（一个 *flat* 文件中可以包含多个资源项）|
+| Field         | Bytes  | Description                                                           |
+|---------------|:------:|-----------------------------------------------------------------------|
+| `magic`       | 4      | *AAPT2* container file identifier: `AAPT` or `0x54504141`             |
+| `version`     | 4      | *AAPT2* container version                                             |
+| `entry_count` | 4      | Number of entries in the container (one *flat* file can contain multiple resource entries) |
 
-### AAPT2 资源项
+### AAPT2 Resource Entry
 
-| 字段          | 字节数         | 描述                                                                              |
-|---------------|:--------------:|-----------------------------------------------------------------------------------|
-| `entry_type`  | 4              | 资源类型（目前仅支持两种类型：`RES_TABLE(0x00000000)` 或 `RES_FILE (0x00000001)`）|
-| `entry_length`| 8              | 资源数据长度                                                                      |
-| `data`        | `entry_length` | 资源数据                                                                          |
+| Field          | Bytes          | Description                                                                                |
+|----------------|:--------------:|--------------------------------------------------------------------------------------------|
+| `entry_type`   | 4              | Resource type (currently only two types are supported: `RES_TABLE(0x00000000)` or `RES_FILE (0x00000001)`) |
+| `entry_length` | 8              | Resource data length                                                                       |
+| `data`         | `entry_length` | Resource data                                                                              |
 
 #### Resource Table
 
-当 `entry_type`为 `0x00000000` 时，`data` 表示 *protobuf* 序列化的 [ResourceTable](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/Resources.proto) 结构
+When `entry_type` is `0x00000000`, `data` represents a *protobuf* serialized [ResourceTable](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/Resources.proto) structure.
 
 #### Resource File
 
-当 `entry_type`为 `0x00000001` 时，`data` 表示资源文件，格式如下：
+When `entry_type` is `0x00000001`, `data` represents a resource file with the following format:
 
-| 字段             | 字节数        | 描述                                                                                                                                                                        |
-|------------------|:-------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `header_size`    | 4             | `header` 的长度                                                                                                                                                             |
-| `data_size`      | 8             | `data` 的长度                                                                                                                                                               |
-| `header`         | `header_size` | 表示 *protobuf* 序列化的 [CompiledFile](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/ResourcesInternal.proto) 结构                       |
-| `header_padding` | `x`           | *0-3* 个填充字节，用于 `data` 32 位对齐                                                                                                                                 |
-| `data`           | `data_size`   | 资源文件内容（*PNG*, 二进制 *XML* 或者 *protobuf* 序列化的 [XmlNode](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/Resources.proto) 结构）|
-| `data_padding`   | `y`           | *0-3* 个填充字节，用于 `data` 32 位对齐                                                                                                                                        |
+| Field            | Bytes         | Description                                                                                                                                                                  |
+|------------------|:-------------:|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `header_size`    | 4             | Length of `header`                                                                                                                                                           |
+| `data_size`      | 8             | Length of `data`                                                                                                                                                             |
+| `header`         | `header_size` | *protobuf* serialized [CompiledFile](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/ResourcesInternal.proto) structure                      |
+| `header_padding` | `x`           | *0-3* padding bytes for 32-bit alignment of `data`                                                                                                                           |
+| `data`           | `data_size`   | Resource file content (*PNG*, binary *XML*, or *protobuf* serialized [XmlNode](https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/Resources.proto) structure) |
+| `data_padding`   | `y`           | *0-3* padding bytes for 32-bit alignment of `data`                                                                                                                           |
 
-> AAPT2 格式规范：https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/formats.md
+> AAPT2 format specification: https://github.com/aosp-mirror/platform_frameworks_base/blob/master/tools/aapt2/formats.md
 
-### *flat* 格式的兼容性问题
+### Compatibility Issues with the *flat* Format
 
-虽然 *Android Gradle Plugin 3.0.0* 已经默认启用 *AAPT2*，但是 *AAPT2* 的产出物（*flat* 文件）的格式直到 *Android Gradle Plugin 3.2.0* 才稳定下来，那 *3.2.0* 以前的版本产出的 *flat* 文件格式到底是什么样子呢？
+Although *Android Gradle Plugin 3.0.0* enabled *AAPT2* by default, the format of *AAPT2* output (*flat* files) was not stabilized until *Android Gradle Plugin 3.2.0*. So what did the *flat* file format look like in versions before *3.2.0*?
 
 #### Resource File
 
-通过逆向分析 *flat* 文件，我们还原了 *Android Gradle Plugin 3.2.0* 以前的版本产出的 *flat* 文件格式，如下表所示：
+Through reverse engineering analysis of *flat* files, we have reconstructed the *flat* file format produced by versions before *Android Gradle Plugin 3.2.0*, as shown in the following table:
 
-| 字段             | 字节数         | 描述                                                                                                                                                |
-|------------------|:--------------:|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `entry_type`     | 4              | 资源类型（通常为：`RES_FILE (0x00000001)`）                                                                                                         |
-| `entry_length`   | 8              | 资源数据长度                                                                                                                                        |
-| `header`         | `header_size`  | 表示 *protobuf* 序列化的 [CompiledFile](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/proto/ResourcesInternalLegacy.proto#L20) |
-| `header_padding` | `x`            | *0-3* 个填充字节，用于 `data` 32 位对齐                                                                                                             |
-| `data`           | `entry_length` | 资源数据                                                                                                                                            |
-| `data_padding`   | `y`            | *0-3* 个填充字节，用于 `data` 32 位对齐                                                                                                             |
+| Field            | Bytes          | Description                                                                                                                                          |
+|------------------|:--------------:|------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `entry_type`     | 4              | Resource type (typically: `RES_FILE (0x00000001)`)                                                                                                   |
+| `entry_length`   | 8              | Resource data length                                                                                                                                 |
+| `header`         | `header_size`  | *protobuf* serialized [CompiledFile](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/proto/ResourcesInternalLegacy.proto#L20)     |
+| `header_padding` | `x`            | *0-3* padding bytes for 32-bit alignment of `data`                                                                                                   |
+| `data`           | `entry_length` | Resource data                                                                                                                                        |
+| `data_padding`   | `y`            | *0-3* padding bytes for 32-bit alignment of `data`                                                                                                   |
+
 #### Resource Table
 
-*Resource Table* 的格式比较简单，其实就是 [ResourceTable](https://github.com/aosp-mirror/platform_frameworks_base/blob/0c80895c203640148da94bf04a57f1965a1c0d3d/tools/aapt2/Format.proto#L69) 的 *protobuf* 序列化结果。
+The format of *Resource Table* is relatively simple. It is essentially the *protobuf* serialized result of [ResourceTable](https://github.com/aosp-mirror/platform_frameworks_base/blob/0c80895c203640148da94bf04a57f1965a1c0d3d/tools/aapt2/Format.proto#L69).
 
-> 关于二进制文件的逆向工具，类 *Linux* 系统都自带 *xxd* 命令，可以直接输出二进制文件的十六进制格式：
+> Regarding reverse engineering tools for binary files, *Linux*-like systems come with the *xxd* command, which can directly output the hexadecimal format of binary files:
 >
 > ```bash
 > $ xxd ./build/intermediates/res/merged/debug/mipmap-hdpi_ic_launcher.png.flat
 > ```
 >
-> 或者使用 *VIM* 打开二进制文件
+> Or use *VIM* to open the binary file:
 >
 > ```bash
 > $ vim ./build/intermediates/res/merged/debug/mipmap-hdpi_ic_launcher.png.flat
 > ```
 >
-> 然后在 *VIM* 中输入：
+> Then enter the following in *VIM*:
 >
 > ```vim
 > :%!xxd
 > ```
 
-## *flat* 与 *AAPT* 产物的关系
+## Relationship Between *flat* and *AAPT* Output
 
-在 *Android Gradle Plugin 3.0* 以前的版本中，*AAPT* 的产物主要有 *3* 类：
+In versions before *Android Gradle Plugin 3.0*, the main outputs of *AAPT* were of *3* types:
 
-1. 已编译的二进制 XML，例如：布局 *XML* 文件；
-1. 字符串池（*String Pool*），内嵌于 *Resource Table* 中，一般不会独立存在；
-1. 资源表（*Resource Table*），例如：*ARSC* 文件；
+1. Compiled binary XML, such as layout *XML* files;
+1. String Pool, embedded in *Resource Table*, generally does not exist independently;
+1. Resource Table, such as *ARSC* files;
 
-*AAPT2* 的大部分数据结构都采用 *protobuf* 重新进行编码，但还有一小部分数据结构仍然复用了*AAPT* 的格式，例如：*String Pool* ，我们从 *AAPT2* 的 *proto* 定义便可以看出来：
+Most data structures in *AAPT2* have been re-encoded using *protobuf*, but some data structures still reuse the *AAPT* format, such as *String Pool*. We can see this from the *proto* definition of *AAPT2*:
 
 ```protobuf
 message StringPool {
@@ -210,13 +211,13 @@ message ResourceTable {
 }
 ```
 
-## *AAPT2* 容器的意义
+## Significance of the *AAPT2* Container
 
-*AAPT2* 为什么要将中间产物编码成 *flat* 格式呢？主要原因在于 *AAPT2* 将资源打包过程拆分成了两个阶段：「编译阶段」和「链接阶段」，为了在链接阶段得到资源更详细的信息，例如：资源名称、配置信息（*Configuration*） 等，因此，直接将资源的元信息连同资源本身一同编码进 *AAPT2* 容器文件中，这样，资源链接的过程可以完全与编译过程解耦了，而且，对于增量构建来说，这样大大提升了资源打包的性能。
+Why does *AAPT2* encode intermediate outputs in the *flat* format? The main reason is that *AAPT2* has split the resource packaging process into two stages: "compilation phase" and "linking phase". In order to obtain more detailed information about resources during the linking phase, such as resource names, configuration information (*Configuration*), etc., the resource metadata is encoded together with the resource itself into the *AAPT2* container file. This way, the resource linking process can be completely decoupled from the compilation process. Moreover, for incremental builds, this greatly improves resource packaging performance.
 
-## 在 *Gradle* 插件中访问 *aapt2*
+## Accessing *aapt2* in *Gradle* Plugins
 
-### *AGP 3.5.0* 以下版本
+### Versions Below *AGP 3.5.0*
 
 ```kotlin
 fun findAapt2(project: Project) {
@@ -229,7 +230,7 @@ fun findAapt2(project: Project) {
 }
 ```
 
-### *AGP 3.5.0* 以上版本
+### Versions Above *AGP 3.5.0*
 
 ```kotlin
 fun findAapt2(project: Project) {
@@ -242,7 +243,7 @@ fun findAapt2(project: Project) {
 }
 ```
 
-## 在代码中执行 *aapt2* 命令
+## Executing *aapt2* Commands in Code
 
 ```kotlin
 fun runAapt2(project: Project, aapt2: String, args: List<String>) {
@@ -260,11 +261,11 @@ fun runAapt2(project: Project, aapt2: String, args: List<String>) {
 
 ## Booster Aapt2
 
-为了便于在 *Gradle* 插件中解析 *flat* 文件，*Booster* 提供了 [booster-aapt2](https://github.com/didi/booster/tree/master/booster-aapt2) 模块，提供了 [BinaryParser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/BinaryParser.kt) 以及 [Aapt2Parser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/Aapt2Parser.kt) 来解析已编译的资源，由于 *Android Gradle Plugin* 版本间存在差异导致 *AAPT2* 中间产物格式不一致，而 [booster-aapt2](https://github.com/didi/booster/tree/master/booster-aapt2) 屏蔽了这些细微的差异，以简化已编译资源文件的解析过程。
+To facilitate parsing *flat* files in *Gradle* plugins, *Booster* provides the [booster-aapt2](https://github.com/didi/booster/tree/master/booster-aapt2) module, which offers [BinaryParser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/BinaryParser.kt) and [Aapt2Parser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/Aapt2Parser.kt) to parse compiled resources. Due to differences between *Android Gradle Plugin* versions that cause inconsistencies in *AAPT2* intermediate output formats, [booster-aapt2](https://github.com/didi/booster/tree/master/booster-aapt2) shields these subtle differences to simplify the parsing process of compiled resource files.
 
-### 使用方法
+### Usage
 
-在 *build.gradle* 中引入 [booster-aapt2](https://github.com/didi/booster/tree/master/booster-aapt2) 依赖，如下所示：
+Add the [booster-aapt2](https://github.com/didi/booster/tree/master/booster-aapt2) dependency in *build.gradle*, as shown below:
 
 ```groovy
 buildscript {
@@ -284,13 +285,13 @@ buildscript {
         classpath 'com.android.tools.build:gradle:3.5.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* 👇👇👇👇 Reference this module 👇👇👇👇 */
         classpath "com.didiglobal.booster:booster-aapt2:$booster_version"
     }
 }
 ```
 
-然后，通过 [BinaryParser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/BinaryParser.kt) 和 [Aapt2Parser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/Aapt2Parser.kt) 来解析已编译的资源文件：
+Then, use [BinaryParser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/BinaryParser.kt) and [Aapt2Parser](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt2/Aapt2Parser.kt) to parse compiled resource files:
 
 ```kotlin
 fun parseCompiledResource(res: File) {

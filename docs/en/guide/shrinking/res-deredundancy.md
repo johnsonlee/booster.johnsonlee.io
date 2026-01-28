@@ -2,18 +2,18 @@
 
 ## Resource Qualifier
 
-*Android* 为了便于对特定设备进行适配，定义了一系列资源配置限定符（Configuration Qualifier），开发者只需要根据限定符来对资源进行命名，*Android Framework* 会根据上下文环境完成适配工作，常用的 *Configuration* 有：
+*Android* defines a series of resource configuration qualifiers to facilitate adaptation for specific devices. Developers only need to name resources according to the qualifiers, and the *Android Framework* will complete the adaptation work based on the context. Common *Configurations* include:
 
-1. 语言和区域
-1. 幕尺寸
+1. Language and region
+1. Screen size
   - small
   - normal
   - large
   - xlarge
-1. 屏幕方向
+1. Screen orientation
   - port
   - land
-1. 屏幕像素密度
+1. Screen pixel density
   - ldpi
   - mdpi
   - hdpi
@@ -24,7 +24,7 @@
   - tvdpi
   - anydpi
   - *nnn*dpi
-1. 平台版本（API Level）
+1. Platform version (API Level)
   - v3
   - v4
   - v7
@@ -32,7 +32,7 @@
 
 ## Unnecessary Resource Removal
 
-对于只发布在国内应用市场的 *APP* 来说，有些不是完全需要的，如：多语言、多屏幕密度等，我们可以在 *build.gradle* 中通过如下配置来移除不必要的资源：
+For *APPs* that are only published on domestic app stores, some configurations are not entirely necessary, such as: multiple languages, multiple screen densities, etc. We can remove unnecessary resources by configuring the following in *build.gradle*:
 
 ```groovy
 android {
@@ -42,7 +42,7 @@ android {
 }
 ```
 
-另一种方式是针对不同的 *Configuration* 分别构建 *APK*，例如，根据屏幕密度来为每种屏幕密度构建一个独立 *APK*：
+Another approach is to build separate *APKs* for different *Configurations*. For example, to build an independent *APK* for each screen density:
 
 ```groovy
 android {
@@ -56,22 +56,22 @@ android {
 }
 ```
 
-既然移除冗余资源这么简单，那还要 *Booster* 做什么？
+Since removing redundant resources is so simple, why do we need *Booster*?
 
 ## Status of Apps From China
 
-国内的大多数 *APP* 对于不同的屏幕密度适配做得不是很完善，可能有的只适配了 `xhdpi`，有的适配了 `xhdpi` 和 `xxhdpi`，总之不是所有的图片资源适配的密度是一致的，如果用上面的「拆分 APK」的方式来构建的话，就会出现有些资源找不到的情况，为了解决这一问题，*Booster* 采用了另一种去冗余的方式：
+Most *APPs* in China don't handle screen density adaptation very well. Some may only adapt for `xhdpi`, while others adapt for both `xhdpi` and `xxhdpi`. In short, not all image resources are adapted consistently for all densities. If we use the "split APK" approach mentioned above, some resources won't be found. To solve this problem, *Booster* adopts a different deredundancy approach:
 
-1. 先按资源类型分组；
-1. 同类型资源按名称分组；
-1. 同名称资源按 *density* 从高到底排序
-1. 针对同类型、同名称的不同 *denisty* 资源，保留最高 *density* 的资源，移除其它 *density* 资源
+1. First, group resources by type;
+1. Group resources of the same type by name;
+1. Sort resources with the same name by *density* from high to low
+1. For resources of the same type and name but different *densities*, keep the resource with the highest *density* and remove resources of other *densities*
 
-上面的过程看起来很简单，但是，实际情况要比这更复杂，有没有可能存在同类型、同名称、同 *density* 的资源呢？当然是可能的，毕竟 *Configuration* 有很多个适配维度，比如：屏幕布局方向（[ScreenConfig.layout](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt/Configuration.kt#L415))。
+The above process looks simple, but the actual situation is more complex. Is it possible to have resources of the same type, same name, and same *density*? Of course it is, since *Configuration* has many adaptation dimensions, such as: screen layout direction ([ScreenConfig.layout](https://github.com/didi/booster/blob/master/booster-aapt2/src/main/kotlin/com/didiglobal/booster/aapt/Configuration.kt#L415)).
 
 ## Support RTL Layout
 
-大多数国家或地区的语言采用的是从左到右（Left-To-Right）的布局方向，像阿拉伯语采用的是从右到左（Right-To-Left）的布局方向，在 *Android 4.1.1 (API Level 16)* 及以下版本是忽略了 *android:supportsRtl* 属性的，而从 *API Level 17* 开始，可以在 *AndroidManifest.xml* 中设置 *android:supportsRtl* 属性：
+Most countries or regions use Left-To-Right layout direction for their languages. Languages like Arabic use Right-To-Left layout direction. In *Android 4.1.1 (API Level 16)* and below, the *android:supportsRtl* attribute was ignored. Starting from *API Level 17*, the *android:supportsRtl* attribute can be set in *AndroidManifest.xml*:
 
 ```xml
 <manifest ... >
@@ -82,11 +82,11 @@ android {
 </manifest>
 ```
 
-因此，在去冗余资源的时候，还需要根据 *supportsRtl* 属性来决定是否保留同 *density* 但不同布局方向的资源。
+Therefore, when removing redundant resources, it's also necessary to decide whether to keep resources with the same *density* but different layout directions based on the *supportsRtl* attribute.
 
 ## Getting Started
 
-开启去冗余资源只需要引入 [booster-task-resource-deredundancy](https://github.com/didi/booster/blob/master/booster-task-resource-deredundancy) 即可，如下所示：
+To enable resource deredundancy, simply include [booster-task-resource-deredundancy](https://github.com/didi/booster/blob/master/booster-task-resource-deredundancy), as shown below:
 
 
 ```groovy
@@ -108,14 +108,14 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "com.didiglobal.booster:booster-gradle-plugin:$booster_version"
 
-        /* 👇👇👇👇 引用这个模块 👇👇👇👇 */
+        /* Include this module */
         classpath "com.didiglobal.booster:booster-task-resource-deredundancy:$booster_version"
     }
 }
 ```
 
 ::: warning
-*Android Gradle Plugin 3.6* 及以上版本，需要在 *gradle.properties* 中设置：
+For *Android Gradle Plugin 3.6* and above, you need to set the following in *gradle.properties*:
 
 ```properties
 android.precompileDependenciesResources=false

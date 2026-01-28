@@ -1,11 +1,11 @@
 # FAQ
 
-在使用 *Booster* 的过程中，可能会遇到一些问题，以下列举了一些常见问题及解决办法。
+When using *Booster*, you may encounter some issues. Below are some common problems and their solutions.
 
 ## NoSuchMethodError: kotlin.io.ByteStreamKt.readBytes(Ljava/io/InputStream;)[B
 
 ::: tip
-升级 *Kotlin* 版本至 `1.3.10` 或更高
+Upgrade the *Kotlin* version to `1.3.10` or higher
 
 ```groovy
 classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
@@ -15,11 +15,11 @@ classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
 ## NoSuchFieldError: JAVA_LETTER_OR_DIGIT
 
 ::: tip
-*Android Gradle Plugin* 依赖的 *Guava* 版本低于 `26.0` 而其它库依赖了 *Guava* `26.0` 以上的版本
+The *Guava* version required by *Android Gradle Plugin* is lower than `26.0`, while other libraries depend on *Guava* version `26.0` or higher
 
-`CharMatcher.JAVA_LETTER_OR_DIGIT` 在 *Guava* `26.0` 版本中被移除
+`CharMatcher.JAVA_LETTER_OR_DIGIT` was removed in *Guava* version `26.0`
 
-- 升级 *Android Gradle Plugin* 版本
+- Upgrade the *Android Gradle Plugin* version
 
     ```groovy
     classpath 'com.android.tools.build:gradle:3.3.0'
@@ -29,48 +29,48 @@ classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
 ## IllegalAccessError: tried to access method com.google.common.io.Files.fileTreeTraverser()
 
 ::: tip
-*Android Gradle Plugin* 依赖的 *Guava* 版本低于 `25.0`
+The *Guava* version required by *Android Gradle Plugin* is lower than `25.0`
 
-`com.google.common.io.Files.fileTreeTraverser()` 在 *Guava*  `25.0` 版本中被移除
+`com.google.common.io.Files.fileTreeTraverser()` was removed in *Guava* version `25.0`
 
-检查项目中引用的 *Guava* 版本是否正确，确保构建脚本依赖的是 *Guava* 的 *JRE* 版本
+Check whether the *Guava* version referenced in your project is correct, and ensure that the build script depends on the *JRE* version of *Guava*
 :::
 
 ## NoSuchFieldError: ASCII
 
 ::: tip
-- 升级 *Android Gradle Plugin* 版本
+- Upgrade the *Android Gradle Plugin* version
 
     ```groovy
     classpath 'com.android.tools.build:gradle:3.4.2'
     ```
 
-- 升级 *Gradle Wrapper* 版本
+- Upgrade the *Gradle Wrapper* version
 
     ```properties
     distributionUrl=https\://services.gradle.org/distributions/gradle-5.1.1-all.zip
     ```
 
-- 升级 *Kotlin* 版本至 `1.3.10` 或更高
+- Upgrade the *Kotlin* version to `1.3.10` or higher
 
     ```groovy
     classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.10'
     ```
 :::
 
-## 如何检查引用的 *Guava* 版本
+## How to Check the Referenced *Guava* Version
 
 ::: tip
-执行 *buildEnv* 任务查看工程 *build* 脚本的依赖：
+Run the *buildEnv* task to view the dependencies of the project's *build* script:
 
 ```bash
 $ ./gradlew buildEnv
 ```
 :::
 
-## 移除 Booster 依赖的 Guava 版本
+## Remove the Guava Version Dependency from Booster
 
-如果以上所有方法都想升级 *Android Gradle Plugin* 版本，考虑将 *Guava* 从 *Booster* 的依赖中排除：
+If all the above methods do not work and you do not want to upgrade the *Android Gradle Plugin* version, consider excluding *Guava* from *Booster*'s dependencies:
 
 ::: tip
 ```gradle
