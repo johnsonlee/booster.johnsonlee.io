@@ -1,0 +1,1 @@
+const e={key:"v-53fdf8d6",path:"/zh/jvm/",title:"JVM \u539F\u7406",lang:"zh-CN",frontmatter:{},excerpt:"",headers:[{level:2,title:"\u76EE\u5F55",slug:"\u76EE\u5F55",children:[]}],filePathRelative:"zh/jvm/README.md",git:{createdTime:1769617572e3,updatedTime:1769617572e3,contributors:[{name:"johnsonlee",email:"g.johnsonlee@gmail.com",commits:1}]}};export{e as data};

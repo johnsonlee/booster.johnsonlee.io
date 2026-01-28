@@ -1,0 +1,1 @@
+const e={key:"v-d67df5a8",path:"/en/developer/debug-gradle-plugin.html",title:"",lang:"en-US",frontmatter:{},excerpt:"",headers:[],filePathRelative:"en/developer/debug-gradle-plugin.md",git:{createdTime:1769617572e3,updatedTime:1769617572e3,contributors:[{name:"johnsonlee",email:"g.johnsonlee@gmail.com",commits:1}]}};export{e as data};

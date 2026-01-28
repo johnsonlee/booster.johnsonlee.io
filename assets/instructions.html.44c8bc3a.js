@@ -1,0 +1,1 @@
+const e={key:"v-50f04779",path:"/en/jvm/instructions.html",title:"JVM Instructions",lang:"en-US",frontmatter:{},excerpt:"",headers:[],filePathRelative:"en/jvm/instructions.md",git:{createdTime:1769617572e3,updatedTime:1769617572e3,contributors:[{name:"johnsonlee",email:"g.johnsonlee@gmail.com",commits:1}]}};export{e as data};
